@@ -10,8 +10,22 @@ from licitpy.settings import settings
 
 
 class BaseDownloader:
+    """
+    A base class for handling HTTP requests and downloading files with optional caching.
+
+    Attributes:
+        session (requests.Session or CachedSession): The HTTP session used for making requests.
+    """
 
     def __init__(self) -> None:
+        """
+        Initializes the BaseDownloader instance.
+
+        If caching is enabled in the settings, it uses a `CachedSession` for requests.
+        Otherwise, it defaults to a standard `Session`.
+
+        The session is pre-configured with default headers for web navigation.
+        """
 
         if settings.use_cache:
             self.session = CachedSession(
@@ -46,6 +60,15 @@ class BaseDownloader:
         )
 
     def get_html_from_url(self, url: HttpUrl) -> str:
+        """
+        Fetches the HTML content from a given URL.
+
+        Args:
+            url (HttpUrl): The URL to fetch the HTML content from.
+
+        Returns:
+            str: The HTML content of the response, decoded as UTF-8.
+        """
         return self.session.get(url).content.decode("utf-8")
 
     @retry(stop=stop_after_attempt(3), wait=wait_incrementing(start=3, increment=3))
@@ -55,6 +78,20 @@ class BaseDownloader:
         file_size: int,
         file_name: str,
     ) -> str:
+        """
+        Downloads a file from a response stream and encodes it as a base64 string.
+
+        This method supports large file downloads with progress tracking and retries
+        on failure using the `tenacity` library.
+
+        Args:
+            response (Response): The HTTP response object containing the file data.
+            file_size (int): The total size of the file in bytes.
+            file_name (str): The name of the file being downloaded (used for progress description).
+
+        Returns:
+            str: The base64-encoded string of the downloaded file content.
+        """
 
         file_content = bytearray()
 
