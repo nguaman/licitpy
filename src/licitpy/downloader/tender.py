@@ -18,11 +18,23 @@ from licitpy.settings import settings
 
 
 class TenderDownloader(BaseDownloader):
+    """
+    A class for handling the downloading and parsing of tender data from APIs and CSV files.
+
+    Attributes:
+        parser (TenderParser): The parser instance for processing tender data.
+    """
 
     def __init__(
         self,
         parser: Optional[TenderParser] = None,
     ) -> None:
+        """
+        Initializes the TenderDownloader instance with a parser and inherits session setup from BaseDownloader.
+
+        Args:
+            parser (Optional[TenderParser]): An instance of TenderParser. If not provided, a default one is created.
+        """
         super().__init__()
 
         self.parser: TenderParser = parser or TenderParser()
@@ -30,6 +42,18 @@ class TenderDownloader(BaseDownloader):
     def get_tender_codes_from_api(
         self, year: int, month: int, skip: int = 0, limit: int = None
     ) -> List[str]:
+        """
+        Fetches tender codes from the API for a given year and month.
+
+        Args:
+            year (int): The year for which to fetch tender codes.
+            month (int): The month for which to fetch tender codes.
+            skip (int): The starting offset for records (default is 0).
+            limit (int): The maximum number of records to fetch (default is None, which fetches all available).
+
+        Returns:
+            List[str]: A list of tender codes.
+        """
 
         # Check if limit is set to 0 or a negative number; if so, return an empty list
         if limit is not None and limit <= 0:
@@ -86,6 +110,16 @@ class TenderDownloader(BaseDownloader):
     def get_massive_tenders_csv_from_zip(
         self, year: int, month: int
     ) -> pandas.DataFrame:
+        """
+        Downloads and extracts a massive tender CSV file from a ZIP archive.
+
+        Args:
+            year (int): The year of the tender data.
+            month (int): The month of the tender data.
+
+        Returns:
+            pandas.DataFrame: A DataFrame containing tender data with specific columns.
+        """
 
         file_name = f"{year}-{month:01}.zip"
 
@@ -122,7 +156,17 @@ class TenderDownloader(BaseDownloader):
     def get_tender_from_csv(
         self, year: int, month: int, limit: int = None
     ) -> List[Dict[str, str]]:
+        """
+        Retrieves tender data from a CSV file and processes it.
 
+        Args:
+            year (int): The year of the tender data.
+            month (int): The month of the tender data.
+            limit (int): The maximum number of records to retrieve (default is None).
+
+        Returns:
+            List[Dict[str, str]]: A list of processed tender records with unique codes and publication dates.
+        """
         df: pandas.DataFrame = self.get_massive_tenders_csv_from_zip(year, month)
 
         # Validate that each 'CodigoExterno' has a unique 'FechaPublicacion'
@@ -156,6 +200,15 @@ class TenderDownloader(BaseDownloader):
         stop=stop_after_attempt(3),
     )
     def get_tender_ocds_data(self, code: str) -> dict:
+        """
+        Fetches detailed OCDS data for a given tender code.
+
+        Args:
+            code (str): The tender code.
+
+        Returns:
+            dict: A dictionary containing the tender data.
+        """
 
         url = f"https://apis.mercadopublico.cl/OCDS/data/record/{code}"
 
@@ -174,12 +227,29 @@ class TenderDownloader(BaseDownloader):
         return data
 
     def get_tender_publish_date_from_tender(self, tender_code: str) -> datetime:
+        """
+        Retrieves the publication date of a tender from its OCDS data.
 
+        Args:
+            tender_code (str): The tender code.
+
+        Returns:
+            datetime: The publication date of the tender.
+        """
         tender_data = self.get_tender_ocds_data(tender_code)
         return self.parser.get_tender_opening_date_from_tender_ocds_data(tender_data)
 
     def get_tender_codes(self, year: int, month: int) -> List[Dict[str, str]]:
+        """
+        Combines tender codes from API and CSV sources, adding missing publication dates.
 
+        Args:
+            year (int): The year of the tender data.
+            month (int): The month of the tender data.
+
+        Returns:
+            List[Dict[str, str]]: A list of tender records sorted by publication date.
+        """
         # It has no date, only the code: {'CodigoExterno': '3611-65-E224'}
         tenders_from_api = self.get_tender_codes_from_api(year, month)
 
@@ -230,6 +300,15 @@ class TenderDownloader(BaseDownloader):
         return tenders
 
     def get_tender_url_from_code(self, code: str) -> HttpUrl:
+        """
+        Generates the tender URL from a given tender code.
+
+        Args:
+            code (str): The tender code.
+
+        Returns:
+            HttpUrl: The URL pointing to the tender's details page.
+        """
 
         base_url = "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx"
 
