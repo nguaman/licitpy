@@ -1,11 +1,14 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
+from zoneinfo import ZoneInfo
 
 from pydantic import HttpUrl
 
 from licitpy.downloader.tender import TenderDownloader
 from licitpy.parsers.tender import TenderParser
-from licitpy.types import Status, Tier
+from licitpy.types.tender.open_contract import OpenContract
+from licitpy.types.tender.status import Status, StatusFromOpenContract
+from licitpy.types.tender.tender import Region, TenderFromCSV, Tier
 from licitpy.utils.decorators import singleton
 
 
@@ -21,29 +24,69 @@ class TenderServices:
         self.downloader: TenderDownloader = downloader or TenderDownloader()
         self.parser: TenderParser = parser or TenderParser()
 
-    def get_status(self, data: dict) -> Status:
-        return self.parser.get_tender_status_from_tender_ocds_data(data)
+    def get_status(self, data: OpenContract) -> Status:
 
-    def get_ocds_data(self, code: str) -> dict:
-        return self.downloader.get_tender_ocds_data(code)
+        closing_date = self.parser.get_closing_date_from_tender_ocds_data(data)
+        status = self.parser.get_tender_status_from_tender_ocds_data(data)
+
+        # If the tender is published (active) but the closing date has passed,
+        # the status must be verified using the status image.
+
+        if status == StatusFromOpenContract.PUBLISHED and not self.is_open(
+            closing_date
+        ):
+
+            html = self.get_html_from_ocds_data(data)
+            status_from_image = self.parser.get_tender_status_from_image(html)
+
+            return Status(status_from_image.name)
+
+        return Status(status.name)
+
+    def get_ocds_data(self, code: str) -> OpenContract:
+        return self.downloader.get_tender_ocds_data_from_api(code)
 
     def get_url(self, code: str) -> HttpUrl:
         return self.downloader.get_tender_url_from_code(code)
 
-    def get_name(self, data: dict) -> str:
+    def get_title(self, data: OpenContract) -> str:
         return self.parser.get_tender_title_from_tender_ocds_data(data)
 
-    def get_title(self, data: dict) -> str:
-        return self.parser.get_tender_title_from_tender_ocds_data(data)
-
-    def get_opening_date(self, data: dict) -> datetime:
+    def get_opening_date(self, data: OpenContract) -> datetime:
         return self.parser.get_tender_opening_date_from_tender_ocds_data(data)
 
     def get_html(self, url: HttpUrl) -> str:
         return self.downloader.get_html_from_url(url)
 
-    def get_tender_codes(self, year: int, month: int):
-        return self.downloader.get_tender_codes(year, month)
+    def get_tenders(self, year: int, month: int) -> List[TenderFromCSV]:
+        return self.downloader.get_tenders(year, month)
 
     def get_tier(self, code: str) -> Tier:
         return self.parser.get_tender_tier(code)
+
+    def get_description(self, data: OpenContract) -> str:
+        return self.parser.get_tender_description_from_tender_ocds_data(data)
+
+    def get_region(self, data: OpenContract) -> Region:
+        return self.parser.get_tender_region_from_tender_ocds_data(data)
+
+    def get_closing_date(self, data: OpenContract) -> datetime:
+        return self.parser.get_closing_date_from_tender_ocds_data(data)
+
+    def get_code_from_ocds_data(self, data: OpenContract) -> str:
+        return self.parser.get_tender_code_from_tender_ocds_data(data)
+
+    def is_open(self, closing_date: datetime) -> bool:
+        if not closing_date:
+            return False
+
+        now_utc = datetime.now(tz=ZoneInfo("America/Santiago"))
+        return now_utc < closing_date
+
+    def get_html_from_code(self, code: str) -> str:
+        url = self.get_url(code)
+        return self.get_html(url)
+
+    def get_html_from_ocds_data(self, data: OpenContract) -> str:
+        code = self.parser.get_tender_code_from_tender_ocds_data(data)
+        return self.get_html_from_code(code)

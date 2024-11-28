@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from operator import attrgetter
-from typing import List
+from typing import Iterator, List
+
+import pandas
 
 from licitpy.entities.tender import Tender
-from licitpy.types import Status, Tier
-from licitpy.utils.threads import execute_concurrently
+from licitpy.types.tender.status import Status
+from licitpy.types.tender.tender import Region, Tier
 
 
 class Tenders:
@@ -16,21 +18,27 @@ class Tenders:
         return Tenders([tender for tender in self._tenders if tender.tier == tier])
 
     def with_status(self, status: Status) -> Tenders:
-
-        tenders: List[Tender] = execute_concurrently(
-            function=lambda tender: tender.status == status,
-            items=self._tenders,
-            desc=f"Filtering tenders by status {status}",
-        )
-
+        tenders = [tender for tender in self._tenders if tender.status == status]
         return Tenders(tenders)
 
-    def to_pandas(self):
+    def in_region(self, region: Region) -> Tenders:
+
+        tenders = [tender for tender in self._tenders if tender.region == region]
+        return Tenders(tenders)
+
+    def to_pandas(self) -> pandas.DataFrame:
         raise NotImplementedError
 
     @classmethod
-    def create(cls, codes: List[str]) -> Tenders:
-        return cls([Tender.create(code) for code in codes])
+    def from_tenders(cls, tenders: List[Tender]) -> Tenders:
+        return cls(
+            [
+                Tender.from_data(
+                    tender.code, region=tender.region, status=tender.status
+                )
+                for tender in tenders
+            ]
+        )
 
     @property
     def codes(self) -> List[str]:
@@ -42,5 +50,5 @@ class Tenders:
     def count(self) -> int:
         return len(self._tenders)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Tender]:
         return iter(self._tenders)

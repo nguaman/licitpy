@@ -5,20 +5,47 @@ import pytest
 from licitpy.utils.date import convert_to_date
 
 
-def test_convert_valid_string_to_date():
-    """
-    Test that a valid date string is correctly converted to a `date` object.
-    """
-    date_str = "2023-10-01"
-    expected_date = date(2023, 10, 1)
-    result = convert_to_date(date_str)
-    assert result == expected_date, f"Expected {expected_date}, got {result}"
+class TestConvertToDate:
+    @pytest.mark.parametrize(
+        "date_value, expected_date",
+        [
+            ("2024-01-01", date(2024, 1, 1)),
+            ("2023-12-31", date(2023, 12, 31)),
+            (date(2024, 1, 1), date(2024, 1, 1)),
+            (date(2023, 12, 31), date(2023, 12, 31)),
+        ],
+    )
+    def test_convert_to_date(self, date_value: str | date, expected_date: date) -> None:
+        """
+        Test that `convert_to_date` correctly converts string and date inputs to date objects.
+        """
+        result = convert_to_date(date_value)
+        assert result == expected_date, f"Expected {expected_date}, got {result}"
 
+    def test_convert_to_date_invalid_string(self) -> None:
+        """
+        Test that `convert_to_date` raises a ValueError for invalid date strings.
+        """
+        with pytest.raises(ValueError):
+            convert_to_date("invalid-date")
 
-def test_convert_to_date_with_invalid_format():
-    """
-    Test that an invalid date format raises a `ValueError`.
-    """
-    invalid_date_str = "11/16/2024"  # Incorrect format
-    with pytest.raises(ValueError, match="Invalid isoformat string: '.*'"):
-        convert_to_date(invalid_date_str)
+    def test_convert_to_date_none(self) -> None:
+        """
+        Test that `convert_to_date` raises a TypeError when None is passed.
+        """
+        with pytest.raises(TypeError):
+            convert_to_date(None)  # type: ignore[arg-type]
+
+    def test_convert_to_date_empty_string(self) -> None:
+        """
+        Test that `convert_to_date` raises a ValueError for empty date strings.
+        """
+        with pytest.raises(ValueError):
+            convert_to_date("")
+
+    def test_convert_to_date_unexpected_type(self) -> None:
+        """
+        Test that `convert_to_date` raises a TypeError for unexpected input types.
+        """
+        with pytest.raises(TypeError):
+            convert_to_date(12345)  # type: ignore[arg-type]

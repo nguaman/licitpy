@@ -1,8 +1,8 @@
 from pprint import pprint
 
 from licitpy import Licitpy
-from licitpy.types import Tier, TimeRange
-from licitpy.types.tender import Status
+from licitpy.types import Status, Tier
+from licitpy.types.search import TimeRange
 
 licitpy = Licitpy()
 
@@ -14,9 +14,8 @@ tenders = (
 )
 
 
-data = []
 for tender in tenders:
-    data.append(
+    pprint(
         {
             "code": tender.code,
             "title": tender.title,
@@ -24,6 +23,3 @@ for tender in tenders:
             "opening_date": tender.opening_date,
         }
     )
-
-
-pprint(data)

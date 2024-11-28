@@ -2,58 +2,37 @@ import base64
 import tempfile
 import zipfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime
-from operator import itemgetter
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 import pandas
 import requests
 from pydantic import HttpUrl
+from requests_cache import CachedSession
 from tenacity import retry, retry_if_result, stop_after_attempt, wait_fixed
 from tqdm import tqdm
 
 from licitpy.downloader.base import BaseDownloader
 from licitpy.parsers.tender import TenderParser
 from licitpy.settings import settings
+from licitpy.types.tender.open_contract import OpenContract
+from licitpy.types.tender.status import StatusFromCSV
+from licitpy.types.tender.tender import EnrichedTender, TenderFromAPI, TenderFromCSV
 
 
 class TenderDownloader(BaseDownloader):
-    """
-    A class for handling the downloading and parsing of tender data from APIs and CSV files.
-
-    Attributes:
-        parser (TenderParser): The parser instance for processing tender data.
-    """
 
     def __init__(
         self,
         parser: Optional[TenderParser] = None,
     ) -> None:
-        """
-        Initializes the TenderDownloader instance with a parser and inherits session setup from BaseDownloader.
 
-        Args:
-            parser (Optional[TenderParser]): An instance of TenderParser. If not provided, a default one is created.
-        """
         super().__init__()
 
         self.parser: TenderParser = parser or TenderParser()
 
     def get_tender_codes_from_api(
-        self, year: int, month: int, skip: int = 0, limit: int = None
-    ) -> List[str]:
-        """
-        Fetches tender codes from the API for a given year and month.
-
-        Args:
-            year (int): The year for which to fetch tender codes.
-            month (int): The month for which to fetch tender codes.
-            skip (int): The starting offset for records (default is 0).
-            limit (int): The maximum number of records to fetch (default is None, which fetches all available).
-
-        Returns:
-            List[str]: A list of tender codes.
-        """
+        self, year: int, month: int, skip: int = 0, limit: int | None = None
+    ) -> List[TenderFromAPI]:
 
         # Check if limit is set to 0 or a negative number; if so, return an empty list
         if limit is not None and limit <= 0:
@@ -77,7 +56,7 @@ class TenderDownloader(BaseDownloader):
 
         # Extract tender codes from the first batch of data
         tenders = [
-            {"CodigoExterno": str(tender["urlTender"]).split("/")[-1]}
+            TenderFromAPI(CodigoExterno=str(tender["urlTender"]).split("/")[-1])
             for tender in records["data"]
         ]
 
@@ -100,7 +79,7 @@ class TenderDownloader(BaseDownloader):
 
             # Append tender codes from the current batch to the tenders list
             tenders.extend(
-                {"CodigoExterno": str(tender["urlTender"]).split("/")[-1]}
+                TenderFromAPI(CodigoExterno=str(tender["urlTender"]).split("/")[-1])
                 for tender in records["data"]
             )
 
@@ -110,16 +89,6 @@ class TenderDownloader(BaseDownloader):
     def get_massive_tenders_csv_from_zip(
         self, year: int, month: int
     ) -> pandas.DataFrame:
-        """
-        Downloads and extracts a massive tender CSV file from a ZIP archive.
-
-        Args:
-            year (int): The year of the tender data.
-            month (int): The month of the tender data.
-
-        Returns:
-            pandas.DataFrame: A DataFrame containing tender data with specific columns.
-        """
 
         file_name = f"{year}-{month:01}.zip"
 
@@ -147,34 +116,34 @@ class TenderDownloader(BaseDownloader):
                         csv_file,
                         encoding="latin1",
                         sep=";",
-                        usecols=["CodigoExterno", "FechaPublicacion", "RegionUnidad"],
+                        usecols=[
+                            "CodigoExterno",
+                            "FechaPublicacion",
+                            "RegionUnidad",
+                            "Estado",
+                            "Nombre",
+                            "Descripcion",
+                        ],
                         parse_dates=["FechaPublicacion"],
                     )
 
         return df
 
     def get_tender_from_csv(
-        self, year: int, month: int, limit: int = None
-    ) -> List[Dict[str, str]]:
-        """
-        Retrieves tender data from a CSV file and processes it.
+        self, year: int, month: int, limit: int | None = None
+    ) -> List[TenderFromCSV]:
 
-        Args:
-            year (int): The year of the tender data.
-            month (int): The month of the tender data.
-            limit (int): The maximum number of records to retrieve (default is None).
-
-        Returns:
-            List[Dict[str, str]]: A list of processed tender records with unique codes and publication dates.
-        """
         df: pandas.DataFrame = self.get_massive_tenders_csv_from_zip(year, month)
 
         # Validate that each 'CodigoExterno' has a unique 'FechaPublicacion'
         if any(df.groupby("CodigoExterno")["FechaPublicacion"].nunique() > 1):
             raise ValueError("Inconsistent publication dates found")
 
-        # Convert the 'FechaPublicacion' column to a date format
+        # The FechaPublicacion comes in a date string format
         df["FechaPublicacion"] = df["FechaPublicacion"].dt.date
+
+        # Strip leading and trailing whitespace from the 'RegionUnidad' column
+        df["RegionUnidad"] = df["RegionUnidad"].str.strip()
 
         # Drop duplicate records based on the 'code' column, keeping the first occurrence
         df = df.drop_duplicates(subset="CodigoExterno", keep="first")
@@ -190,32 +159,38 @@ class TenderDownloader(BaseDownloader):
         if limit is None:
             limit = df.shape[0]
 
-        tenders = df.to_dict(orient="records")
+        tenders = [
+            TenderFromCSV(
+                RegionUnidad=tender["RegionUnidad"],
+                FechaPublicacion=tender["FechaPublicacion"],
+                CodigoExterno=tender["CodigoExterno"],
+                Estado=tender["Estado"],
+                Nombre=tender["Nombre"],
+                Descripcion=tender["Descripcion"],
+            )
+            for tender in df.to_dict(orient="records")
+        ]
 
         return tenders[:limit]
 
+    @staticmethod
+    def is_invalid_contract(contract: Optional[OpenContract]) -> bool:
+        return not contract or not contract.records
+
     @retry(
-        retry=retry_if_result(lambda r: "records" not in r),
+        retry=retry_if_result(is_invalid_contract),
         wait=wait_fixed(5),
         stop=stop_after_attempt(3),
     )
-    def get_tender_ocds_data(self, code: str) -> dict:
-        """
-        Fetches detailed OCDS data for a given tender code.
-
-        Args:
-            code (str): The tender code.
-
-        Returns:
-            dict: A dictionary containing the tender data.
-        """
+    def get_tender_ocds_data_from_api(self, code: str) -> OpenContract:
 
         url = f"https://apis.mercadopublico.cl/OCDS/data/record/{code}"
 
         response = self.session.get(url)
         data = response.json()
 
-        if "records" not in data:
+        if "records" not in data and isinstance(self.session, CachedSession):
+
             with self.session.cache_disabled():
 
                 response = self.session.get(url)
@@ -224,56 +199,75 @@ class TenderDownloader(BaseDownloader):
                 if "records" in data:
                     self.session.cache.save_response(response)
 
-        return data
+        return OpenContract(**data)
 
-    def get_tender_publish_date_from_tender(self, tender_code: str) -> datetime:
-        """
-        Retrieves the publication date of a tender from its OCDS data.
+    def enrich_tender_with_ocds(self, code: str) -> EnrichedTender:
 
-        Args:
-            tender_code (str): The tender code.
+        data = self.get_tender_ocds_data_from_api(code)
 
-        Returns:
-            datetime: The publication date of the tender.
-        """
-        tender_data = self.get_tender_ocds_data(tender_code)
-        return self.parser.get_tender_opening_date_from_tender_ocds_data(tender_data)
+        # 2024-11-16 10:27:00-03:00 <class 'datetime.datetime'>
+        opening_date = self.parser.get_tender_opening_date_from_tender_ocds_data(data)
 
-    def get_tender_codes(self, year: int, month: int) -> List[Dict[str, str]]:
-        """
-        Combines tender codes from API and CSV sources, adding missing publication dates.
+        region = self.parser.get_tender_region_from_tender_ocds_data(data)
+        status = self.parser.get_tender_status_from_tender_ocds_data(data)
+        title = self.parser.get_tender_title_from_tender_ocds_data(data)
+        desc = self.parser.get_tender_description_from_tender_ocds_data(data)
 
-        Args:
-            year (int): The year of the tender data.
-            month (int): The month of the tender data.
+        return EnrichedTender(
+            title=title,
+            description=desc,
+            region=region,
+            status=status.name,
+            opening_date=opening_date.date(),
+        )
 
-        Returns:
-            List[Dict[str, str]]: A list of tender records sorted by publication date.
-        """
-        # It has no date, only the code: {'CodigoExterno': '3611-65-E224'}
-        tenders_from_api = self.get_tender_codes_from_api(year, month)
+    def get_tenders(self, year: int, month: int) -> List[TenderFromCSV]:
 
-        # From the CSV, we obtain the code, the publication date, and the region
-        # {'CodigoExterno': '3938-63-L124','FechaPublicacion': '2024-11-02','RegionUnidad': 'Región de la Araucanía '}
-        tenders_from_csv = self.get_tender_from_csv(year, month)
+        # From the API:
+        # [
+        #     TenderFromAPI(CodigoExterno='2943-12-LQ24')
+        # ]
+        tenders_from_api: List[TenderFromAPI] = self.get_tender_codes_from_api(
+            year, month
+        )
 
-        csv_tender_codes = {tender["CodigoExterno"] for tender in tenders_from_csv}
+        # From the CSV.
+        # [TenderFromCSV(
+        #     CodigoExterno='3149-41-LP24',
+        #     RegionUnidad=<Region.II: 'Región de Antofagasta'>,
+        #     FechaPublicacion=datetime.date(2024, 11, 1),
+        #     Estado=<StatusFromCSV.AWARDED: 'Adjudicada'>,
+        #     Nombre='SERVICIO ....',
+        #     Descripcion='El objetivo de esta contratación es para amenizar el ...')
+        # ]
 
-        api_tenders_missing_date = [
+        tenders_from_csv: List[TenderFromCSV] = self.get_tender_from_csv(year, month)
+
+        # Filtering tenders that are internal QA tests from Mercado Publico.
+        # eg: 500977-191-LS24 : Nombre Unidad : MpOperacionesC
+
+        csv_tender_codes = {
+            tender.CodigoExterno
+            for tender in tenders_from_csv
+            if not tender.CodigoExterno.startswith("500977-")
+        }
+
+        api_tenders_missing_date_codes = [
             tender
             for tender in tenders_from_api
-            if tender["CodigoExterno"] not in csv_tender_codes
+            if tender.CodigoExterno not in csv_tender_codes
+            and not tender.CodigoExterno.startswith("500977-")
         ]
 
-        api_tenders_with_date: List[Dict[str, str]] = []
+        api_tenders_enriched: List[TenderFromCSV] = []
 
         with ThreadPoolExecutor(max_workers=16) as executor:
 
             futures = {
                 executor.submit(
-                    self.get_tender_publish_date_from_tender, tender["CodigoExterno"]
+                    self.enrich_tender_with_ocds, tender.CodigoExterno
                 ): tender
-                for tender in api_tenders_missing_date
+                for tender in api_tenders_missing_date_codes
             }
 
             for future in tqdm(
@@ -283,21 +277,23 @@ class TenderDownloader(BaseDownloader):
                 disable=settings.disable_progress_bar,
             ):
 
-                tender_code = futures[future]["CodigoExterno"]
+                tender_code: str = futures[future].CodigoExterno
+                enrichment = future.result()
 
-                publication_date = future.result()
-
-                api_tenders_with_date.append(
-                    {
-                        "CodigoExterno": tender_code,
-                        "FechaPublicacion": publication_date.date(),
-                    }
+                tender = TenderFromCSV(
+                    CodigoExterno=tender_code,
+                    FechaPublicacion=enrichment.opening_date,
+                    RegionUnidad=enrichment.region.value,
+                    Estado=StatusFromCSV[enrichment.status.name],
+                    Nombre=enrichment.title,
+                    Descripcion=enrichment.description,
                 )
 
-        tenders: List[Dict[str, str]] = tenders_from_csv + api_tenders_with_date
-        tenders.sort(key=itemgetter("FechaPublicacion"))
+                api_tenders_enriched.append(tender)
 
-        return tenders
+        tenders = tenders_from_csv + api_tenders_enriched
+
+        return sorted(tenders, key=lambda tender: tender.FechaPublicacion, reverse=True)
 
     def get_tender_url_from_code(self, code: str) -> HttpUrl:
         """

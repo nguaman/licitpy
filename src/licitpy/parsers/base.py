@@ -1,6 +1,5 @@
-from typing import List
-
 import lxml.html
+from lxml.etree import ParserError, XMLSyntaxError
 from lxml.html import HtmlElement
 
 
@@ -11,11 +10,17 @@ class ElementNotFoundException(Exception):
 class BaseParser:
 
     def get_html_element(self, html: str) -> HtmlElement:
-        return lxml.html.fromstring(html)
+        try:
 
-    def get_html_element_by_id(self, html: str, element_id: str) -> List[HtmlElement]:
-        html: HtmlElement = self.get_html_element(html)
-        element: HtmlElement = html.xpath(f'//*[@id="{element_id}"]')
+            element = lxml.html.fromstring(html)
+            return element
+
+        except (ParserError, XMLSyntaxError) as e:
+            raise ValueError("Document is empty or invalid") from e
+
+    def get_html_element_by_id(self, html: str, element_id: str) -> HtmlElement:
+        html_element: HtmlElement = self.get_html_element(html)
+        element: HtmlElement = html_element.xpath(f'//*[@id="{element_id}"]')
 
         return element
 
@@ -23,7 +28,7 @@ class BaseParser:
         self, html: str, element_id: str, attribute: str
     ) -> str:
 
-        html_element: List[HtmlElement] = self.get_html_element_by_id(html, element_id)
+        html_element: HtmlElement = self.get_html_element_by_id(html, element_id)
 
         if not html_element:
             raise ElementNotFoundException(f"Element with ID '{element_id}' not found")
@@ -35,6 +40,9 @@ class BaseParser:
 
     def get_text_by_element_id(self, html: str, element_id: str) -> str:
         return self.get_attribute_by_element_id(html, element_id, "text()")
+
+    def get_src_by_element_id(self, html: str, element_id: str) -> str:
+        return self.get_attribute_by_element_id(html, element_id, "@src")
 
     def get_view_state(self, html: str) -> str:
         return self.get_attribute_by_element_id(html, "__VIEWSTATE", "@value")
