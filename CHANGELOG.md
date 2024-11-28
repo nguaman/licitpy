@@ -1,6 +1,20 @@
 # CHANGELOG
 
 
+## v0.2.0-alpha.1 (2024-11-28)
+
+### Documentation
+
+- Add docstrings to entities
+  ([`2135d8f`](https://github.com/nguaman/licitpy/commit/2135d8f8edcd4ca3c5339456e256d32aa2d194c6))
+
+### Features
+
+- Improve codebase with mypy and pytest integration, fix download issues, and enhance various
+  sections of the code
+  ([`b1d16d2`](https://github.com/nguaman/licitpy/commit/b1d16d28d673bc61dd9d787ae1c340273f474f25))
+
+
 ## v0.1.0 (2024-11-16)
 
 ### Build System
