@@ -10,22 +10,10 @@ from licitpy.settings import settings
 
 
 class BaseDownloader:
-    """
-    A base class for handling HTTP requests and downloading files with optional caching.
-
-    Attributes:
-        session (requests.Session or CachedSession): The HTTP session used for making requests.
-    """
 
     def __init__(self) -> None:
-        """
-        Initializes the BaseDownloader instance.
 
-        If caching is enabled in the settings, it uses a `CachedSession` for requests.
-        Otherwise, it defaults to a standard `Session`.
-
-        The session is pre-configured with default headers for web navigation.
-        """
+        self.session: Session | CachedSession
 
         if settings.use_cache:
             self.session = CachedSession(
@@ -69,7 +57,7 @@ class BaseDownloader:
         Returns:
             str: The HTML content of the response, decoded as UTF-8.
         """
-        return self.session.get(url).content.decode("utf-8")
+        return self.session.get(str(url)).content.decode("utf-8")
 
     @retry(stop=stop_after_attempt(3), wait=wait_incrementing(start=3, increment=3))
     def download_file_base64(

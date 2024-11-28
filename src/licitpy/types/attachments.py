@@ -1,7 +1,7 @@
 from enum import Enum
-from typing import Optional
+from typing import Callable, Optional
 
-from pydantic import BaseModel, PrivateAttr, computed_field
+from pydantic import BaseModel, PrivateAttr
 
 
 class ContentStatus(Enum):
@@ -24,9 +24,9 @@ class Attachment(BaseModel):
     description: str
     size: int
     upload_date: str
-    _file_type: Optional[str] = None
-    _download_fn: Optional[callable] = PrivateAttr()
-    _content: Optional[str] = None
+    _file_type: Optional[str] = PrivateAttr(default=None)
+    _download_fn: Callable[[], tuple[str, str]] = PrivateAttr()
+    _content: Optional[str] = PrivateAttr(default=None)
 
     @property
     def content(self) -> Optional[str]:
@@ -38,20 +38,15 @@ class Attachment(BaseModel):
         if self._file_type is None:
             _ = self.content
 
+        if self._file_type is None:
+            raise ValueError(
+                "File type could not be determined after content download."
+            )
+
         return self._file_type
 
-    @computed_field(return_type=ContentStatus)
     @property
     def content_status(self) -> ContentStatus:
-        """
-        Indicates if the content has been downloaded.
-
-        - `PENDING_DOWNLOAD`: Content is ready to be downloaded. Access `.content` to download.
-        - `AVAILABLE`: Content has been downloaded and is ready to use.
-
-        To trigger the download, access `.content`.
-        """
         if self._content is None:
             return ContentStatus.PENDING_DOWNLOAD
-
         return ContentStatus.AVAILABLE

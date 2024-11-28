@@ -1,0 +1,12 @@
+[run]
+source = src/licitpy
+branch = True
+omit =
+    */__init__.py
+
+[report]
+show_missing = True
+skip_covered = False
+
+[html]
+directory = htmlcov
