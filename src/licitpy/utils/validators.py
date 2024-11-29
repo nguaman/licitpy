@@ -21,6 +21,7 @@ def is_valid_public_market_code(code: str) -> bool:
     # Example of a valid code:
     # - 2513-2-LE24
     # - 750301-54-L124
+    # - 1375735-1-L124
 
     if code is None:
         raise TypeError("Invalid public market code: code cannot be None")
@@ -30,5 +31,5 @@ def is_valid_public_market_code(code: str) -> bool:
 
     tier_pattern = "|".join([tier.value for tier in Tier])
 
-    pattern = rf"^\d{{4,6}}-\d{{1,2}}-({tier_pattern})\d{{2}}$"
+    pattern = rf"^\d{{4,8}}-\d{{1,2}}-({tier_pattern})\d{{2}}$"
     return bool(re.match(pattern, code))

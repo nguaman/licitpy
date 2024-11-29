@@ -1,4 +1,3 @@
-import json
 from datetime import date, datetime
 from unittest.mock import MagicMock
 
@@ -206,22 +205,32 @@ def test_ocds_property_initialization(mock_tender_services: TenderServices) -> N
     # Scenario 1: _ocds is None and should be initialized
     tender = Tender(code="2513-2-LE24", services=mock_tender_services)
 
-    assert tender._ocds is None  # Initially not set
+    # Initially not set
+    assert tender._ocds is None
 
-    ocds_data = tender.ocds  # Triggers lazy initialization
+    # Triggers lazy initialization
+    ocds_data = tender.ocds
 
     assert (
         ocds_data.uri == "https://apis.mercadopublico.cl/OCDS/data/record/3955-54-LE24"
     )
 
-    assert tender._ocds is ocds_data  # Now it should be set
+    # Now it should be set
+    assert tender._ocds is ocds_data
 
     # Scenario 2: _ocds is already set, no re-initialization occurs
-    mock_tender_services.get_ocds_data.reset_mock()  # Clear any previous calls to the mock
-    ocds_data_second_access = tender.ocds  # Access the property again
-    mock_tender_services.get_ocds_data.assert_not_called()  # Ensure the service is not called again
 
-    assert ocds_data_second_access is ocds_data  # Confirm the same object is returned
+    # Clear any previous calls to the mock
+    mock_tender_services.get_ocds_data.reset_mock()
+
+    # Access the property again
+    ocds_data_second_access = tender.ocds
+
+    # Ensure the service is not called again
+    mock_tender_services.get_ocds_data.assert_not_called()
+
+    # Confirm the same object is returned
+    assert ocds_data_second_access is ocds_data
 
 
 def test_from_data() -> None:
@@ -261,21 +270,31 @@ def test_url_property_initialization(mock_tender_services: TenderServices) -> No
     """
     tender = Tender(code="2513-2-LE24", services=mock_tender_services)
 
-    assert tender._url is None  # Initially not set
+    # Initially not set
+    assert tender._url is None
 
-    url_data = tender.url  # Triggers lazy initialization
+    # Triggers lazy initialization
+    url_data = tender.url
 
     assert (
         url_data
         == "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=2513-2-LE24"
     )
-    assert tender._url is url_data  # Now it should be set
 
-    mock_tender_services.get_url.reset_mock()  # Clear any previous calls to the mock
-    url_data_second_access = tender.url  # Access the property again
-    mock_tender_services.get_url.assert_not_called()  # Ensure the service is not called again
+    # Now it should be set
+    assert tender._url is url_data
 
-    assert url_data_second_access is url_data  # Confirm the same object is returned
+    # Clear any previous calls to the mock
+    mock_tender_services.get_url.reset_mock()
+
+    # Access the property again
+    url_data_second_access = tender.url
+
+    # Ensure the service is not called again
+    mock_tender_services.get_url.assert_not_called()
+
+    # Confirm the same object is returned
+    assert url_data_second_access is url_data
 
 
 def test_closing_date_property_initialization(
@@ -291,20 +310,29 @@ def test_closing_date_property_initialization(
     """
 
     tender = Tender(code="2513-2-LE24", services=mock_tender_services)
-    assert tender._closing_date is None  # Initially not set
 
-    closing_date = tender.closing_date  # Triggers lazy initialization
+    # Initially not set
+    assert tender._closing_date is None
+
+    # Triggers lazy initialization
+    closing_date = tender.closing_date
 
     assert closing_date == datetime(2024, 11, 30, 23, 59)
-    assert tender._closing_date is closing_date  # Now it should be set
 
-    mock_tender_services.get_closing_date.reset_mock()  # Clear any previous calls to the mock
-    closing_date_second_access = tender.closing_date  # Access the property again
-    mock_tender_services.get_closing_date.assert_not_called()  # Ensure the service is not called again
+    # Now it should be set
+    assert tender._closing_date is closing_date
 
-    assert (
-        closing_date_second_access is closing_date
-    )  # Confirm the same object is returned
+    # Clear any previous calls to the mock
+    mock_tender_services.get_closing_date.reset_mock()
+
+    # Access the property again
+    closing_date_second_access = tender.closing_date
+
+    # Ensure the service is not called again
+    mock_tender_services.get_closing_date.assert_not_called()
+
+    # Confirm the same object is returned
+    assert closing_date_second_access is closing_date
 
 
 def test_tier_property_initialization(mock_tender_services: TenderServices) -> None:
@@ -312,21 +340,31 @@ def test_tier_property_initialization(mock_tender_services: TenderServices) -> N
 
     This test covers both scenarios of the conditional logic in the `tier` property:
     1. When `_tier` is initially `None`, it verifies that the `get_tier` service method is called
-       and the returned value is correctly assigned to `_tier`.
+    and the returned value is correctly assigned to `_tier`.
     2. When `_tier` is already assigned, it verifies that `get_tier` is not called again, ensuring
-       that the lazy initialization logic only executes once for this attribute.
+    that the lazy initialization logic only executes once for this attribute.
     """
     tender = Tender(code="2513-2-LE24", services=mock_tender_services)
 
-    assert tender._tier is None  # Initially not set
+    # Initially not set
+    assert tender._tier is None
 
-    tier_data = tender.tier  # Triggers lazy initialization
+    # Triggers lazy initialization
+    tier_data = tender.tier
 
     assert tier_data == Tier.LE
-    assert tender._tier is tier_data  # Now it should be set
 
-    mock_tender_services.get_tier.reset_mock()  # Clear any previous calls to the mock
-    tier_data_second_access = tender.tier  # Access the property again
-    mock_tender_services.get_tier.assert_not_called()  # Ensure the service is not called again
+    # Now it should be set
+    assert tender._tier is tier_data
 
-    assert tier_data_second_access is tier_data  # Confirm the same object is returned
+    # Clear any previous calls to the mock
+    mock_tender_services.get_tier.reset_mock()
+
+    # Access the property again
+    tier_data_second_access = tender.tier
+
+    # Ensure the service is not called again
+    mock_tender_services.get_tier.assert_not_called()
+
+    # Confirm the same object is returned
+    assert tier_data_second_access is tier_data

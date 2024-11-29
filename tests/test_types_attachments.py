@@ -56,9 +56,6 @@ def test_attachment_file_type_resolves_correctly(
 def test_attachment_file_type_raises_error_when_missing(
     attachment: Attachment, mock_download_fn: MagicMock
 ) -> None:
-    """
-    Verifica que se lanza un ValueError si el tipo de archivo no se puede determinar.
-    """
     mock_download_fn.return_value = (None, "file content")
     attachment._download_fn = mock_download_fn
 
