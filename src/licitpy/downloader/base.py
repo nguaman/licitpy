@@ -1,12 +1,17 @@
 import base64
+import random
+from typing import Tuple
 
+import magic
 from pydantic import HttpUrl
 from requests import Response, Session
-from requests_cache import CachedSession
+from requests_cache import CachedSession, disabled
 from tenacity import retry, stop_after_attempt, wait_incrementing
 from tqdm import tqdm
 
+from licitpy.parsers import _extract_view_state
 from licitpy.settings import settings
+from licitpy.types.attachments import Attachment
 
 
 class BaseDownloader:
@@ -100,3 +105,35 @@ class BaseDownloader:
         base64_content = base64.b64encode(file_content).decode("utf-8")
 
         return base64_content
+
+    def download_attachment_from_url(self, url: HttpUrl, attachment: Attachment) -> str:
+
+        file_code = attachment.id
+        file_size = attachment.size
+        file_name = attachment.name
+
+        search_x = str(random.randint(1, 30))
+        search_y = str(random.randint(1, 30))
+
+        with disabled():
+
+            # Fetch the HTML content of the page to extract the __VIEWSTATE
+            html = self.get_html_from_url(url)
+
+            response = self.session.post(
+                str(url),
+                data={
+                    "__EVENTTARGET": "",
+                    "__EVENTARGUMENT": "",
+                    "__VIEWSTATE": _extract_view_state(html),
+                    "__VIEWSTATEGENERATOR": "13285B56",
+                    # Random parameters that simulate the button click
+                    f"DWNL$grdId$ctl{file_code}$search.x": search_x,
+                    f"DWNL$grdId$ctl{file_code}$search.y": search_y,
+                    "DWNL$ctl10": "",
+                },
+                timeout=(5, 30),
+                stream=True,
+            )
+
+        return self.download_file_base64(response, file_size, file_name)

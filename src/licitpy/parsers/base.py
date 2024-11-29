@@ -44,5 +44,8 @@ class BaseParser:
     def get_src_by_element_id(self, html: str, element_id: str) -> str:
         return self.get_attribute_by_element_id(html, element_id, "@src")
 
+    def get_on_click_by_element_id(self, html: str, element_id: str) -> str:
+        return self.get_attribute_by_element_id(html, element_id, "@onclick")
+
     def get_view_state(self, html: str) -> str:
         return self.get_attribute_by_element_id(html, "__VIEWSTATE", "@value")

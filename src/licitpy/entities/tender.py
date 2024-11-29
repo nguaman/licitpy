@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import HttpUrl
 
 from licitpy.services.tender import TenderServices
+from licitpy.types.attachments import Attachment
 from licitpy.types.tender.open_contract import OpenContract
 from licitpy.types.tender.status import Status
 from licitpy.types.tender.tender import Region, Tier
@@ -40,7 +41,9 @@ class Tender:
         self._description: Optional[str] = description
         self._region: Optional[Region] = region
         self._closing_date: Optional[datetime] = None
-
+        self._attachment_url: Optional[HttpUrl] = None
+        self._attachments: Optional[List[Attachment]] = None
+        self._signed_base: Optional[Attachment] = None
         self.services = services or TenderServices()
 
     @property
@@ -107,6 +110,28 @@ class Tender:
         if self._region is None:
             self._region = self.services.get_region(self.ocds)
         return self._region
+
+    @property
+    def attachment_url(self) -> HttpUrl:
+        if self._attachment_url is None:
+            self._attachment_url = self.services.get_attachment_url(self.html)
+        return self._attachment_url
+
+    @property
+    def attachments(self) -> List[Attachment]:
+        if self._attachments is None:
+            self._attachments = self.services.get_attachments_from_url(
+                self.attachment_url
+            )
+        return self._attachments
+
+    @property
+    def signed_base(self) -> Attachment:
+        if self._signed_base is None:
+            self._signed_base = self.services.get_signed_base_from_attachments(
+                self.attachments
+            )
+        return self._signed_base
 
     @classmethod
     def create(cls, code: str) -> Tender:

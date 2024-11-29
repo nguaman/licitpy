@@ -1,4 +1,5 @@
 from datetime import datetime
+from functools import partial
 from typing import List, Optional
 from zoneinfo import ZoneInfo
 
@@ -6,6 +7,7 @@ from pydantic import HttpUrl
 
 from licitpy.downloader.tender import TenderDownloader
 from licitpy.parsers.tender import TenderParser
+from licitpy.types.attachments import Attachment
 from licitpy.types.tender.open_contract import OpenContract
 from licitpy.types.tender.status import Status, StatusFromOpenContract
 from licitpy.types.tender.tender import Region, TenderFromCSV, Tier
@@ -90,3 +92,36 @@ class TenderServices:
     def get_html_from_ocds_data(self, data: OpenContract) -> str:
         code = self.parser.get_tender_code_from_tender_ocds_data(data)
         return self.get_html_from_code(code)
+
+    def get_attachment_url(self, html: str) -> HttpUrl:
+        return self.parser.get_attachment_url_from_html(html)
+
+    def get_attachments_from_url(self, url: HttpUrl) -> List[Attachment]:
+
+        html = self.downloader.get_html_from_url(url)
+        attachments: List[Attachment] = self.parser.get_attachments(html)
+
+        for attachment in attachments:
+
+            download_attachment_fn = partial(
+                self.downloader.download_attachment, url, attachment
+            )
+
+            attachment._download_fn = download_attachment_fn
+
+        return attachments
+
+    def get_signed_base_from_attachments(
+        self, attachments: List[Attachment]
+    ) -> Attachment:
+
+        signed_bases = [
+            attachment
+            for attachment in attachments
+            if "Anexo Resolucion Electronica (Firmada)" in attachment.type
+        ]
+
+        if not signed_bases:
+            raise ValueError("No signed base found in attachments.")
+
+        return signed_bases[0]

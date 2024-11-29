@@ -2,6 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import pytest
+from pydantic import HttpUrl
 
 from licitpy.parsers.base import ElementNotFoundException
 from licitpy.parsers.tender import TenderParser
@@ -250,3 +251,71 @@ def test_get_tender_region_missing_address(
         ValueError, match="The address or region is missing for the procuring entity."
     ):
         tender_parser.get_tender_region_from_tender_ocds_data(example_open_contract)
+
+
+def test_get_table_attachments(tender_parser: TenderParser) -> None:
+    html = """
+    <html>
+        <body>
+            <table id="DWNL_grdId">
+                <tr><td>Sample Row</td></tr>
+            </table>
+        </body>
+    </html>
+    """
+    table = tender_parser._get_table_attachments(html)
+    assert table.tag == "table", "The tag of the returned element should be 'table'"
+
+
+def test_get_table_attachments_not_found(tender_parser: TenderParser) -> None:
+    html = "<html><body></body></html>"
+    with pytest.raises(ValueError, match="Table with ID 'DWNL_grdId' not found"):
+        tender_parser._get_table_attachments(html)
+
+
+def test_get_table_attachments_rows(tender_parser: TenderParser) -> None:
+    html = """
+    <table>
+        <tr class="row"><td>Row 1</td></tr>
+        <tr class="row"><td>Row 2</td></tr>
+    </table>
+    """
+    table = tender_parser.get_html_element(html)
+    rows = tender_parser._get_table_attachments_rows(table)
+    assert len(rows) == 2, "The number of rows should be 2"
+
+
+def test_parse_size_attachment(tender_parser: TenderParser) -> None:
+    html = "<td><span>1024 Kb</span></td>"
+    element = tender_parser.get_html_element(html)
+    size = tender_parser._parse_size_attachment(element)
+    assert size == 1024 * 1024, "The parsed size should be 1 MB in bytes"
+
+
+def test_extract_attachment_id(tender_parser: TenderParser) -> None:
+    html = '<td><input id="ctl123" /></td>'
+    element = tender_parser.get_html_element(html)
+    attachment_id = tender_parser._extract_attachment_id(element)
+    assert attachment_id == "123", "The extracted attachment ID should be '123'"
+
+
+def test_extract_content_from_attachment_row(tender_parser: TenderParser) -> None:
+    html = "<td><span>Attachment Content</span></td>"
+    element = tender_parser.get_html_element(html)
+    content = tender_parser._extract_content_from_attachment_row(element)
+    assert content == "Attachment Content", "The extracted content should match"
+
+
+def test_get_attachment_url_from_html(tender_parser: TenderParser) -> None:
+    html = """
+    <html>
+        <body>
+            <img id="imgAdjuntos" onclick="ViewAttachment.aspx?enc=testHash','"></img>
+        </body>
+    </html>
+    """
+    url = tender_parser.get_attachment_url_from_html(html)
+    expected_url = HttpUrl(
+        "https://www.mercadopublico.cl/Procurement/Modules/Attachment/ViewAttachment.aspx?enc=testHash"
+    )
+    assert url == expected_url, f"The URL should be {expected_url}"

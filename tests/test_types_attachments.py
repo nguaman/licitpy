@@ -2,23 +2,24 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from licitpy.types.attachments import Attachment, ContentStatus
+from licitpy.types.attachments import Attachment, ContentStatus, FileType
 
 
 @pytest.fixture
 def mock_download_fn() -> MagicMock:
-    return MagicMock(return_value=("text/plain", "file content"))
+    return MagicMock(return_value="file content")
 
 
 @pytest.fixture
 def attachment(mock_download_fn: MagicMock) -> Attachment:
     return Attachment(
         id="1",
-        name="test_file",
+        name="test_file.pdf",
         type="text",
         description="A test file",
         size=1024,
         upload_date="2024-01-01",
+        file_type=FileType.PDF,
         _download_fn=mock_download_fn,
     )
 
@@ -41,25 +42,19 @@ def test_attachment_content_download(
     mock_download_fn.assert_called_once()
 
 
-def test_attachment_file_type_resolves_correctly(
+def test_attachment_content_cached(
     attachment: Attachment, mock_download_fn: MagicMock
 ) -> None:
 
-    mock_download_fn.return_value = ("text/plain", "file content")
     attachment._download_fn = mock_download_fn
 
-    assert attachment.file_type == "text/plain"
+    # This will trigger the download for the first time
+    _ = attachment.content
+
+    # This will not trigger the download
+    content = attachment.content
+
+    # The content should be the same
+    assert content == "file content"
 
     mock_download_fn.assert_called_once()
-
-
-def test_attachment_file_type_raises_error_when_missing(
-    attachment: Attachment, mock_download_fn: MagicMock
-) -> None:
-    mock_download_fn.return_value = (None, "file content")
-    attachment._download_fn = mock_download_fn
-
-    with pytest.raises(
-        ValueError, match="File type could not be determined after content download."
-    ):
-        _ = attachment.file_type
