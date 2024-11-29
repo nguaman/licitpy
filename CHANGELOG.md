@@ -1,6 +1,9 @@
 # CHANGELOG
 
 
+## v0.3.0 (2024-11-29)
+
+
 ## v0.3.0-alpha.1 (2024-11-29)
 
 ### Documentation
