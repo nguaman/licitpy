@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.3.0-alpha.1 (2024-11-29)
+
+### Documentation
+
+- Add examples
+  ([`6a41ab5`](https://github.com/nguaman/licitpy/commit/6a41ab5ff3bb52cb1189fdbc4d5e327b68447ddf))
+
+### Features
+
+- Download of metadata, URL, and the content in base64 of the attached files
+  ([`754eeca`](https://github.com/nguaman/licitpy/commit/754eecae6e72745efc6dd92028c78f06a8fa55c1))
+
+
 ## v0.2.5 (2024-11-29)
 
 ### Bug Fixes
