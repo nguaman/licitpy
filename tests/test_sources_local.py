@@ -6,13 +6,11 @@ from licitpy.entities.tender import Tender
 from licitpy.entities.tenders import Tenders
 from licitpy.services.tender import TenderServices
 from licitpy.sources.local import Local
-from licitpy.types.tender.status import StatusFromCSV
-from licitpy.types.tender.tender import Region, TenderFromCSV
+from licitpy.types.tender.tender import TenderFromCSV
 
 
 @pytest.fixture
 def mock_tender_services() -> TenderServices:
-    """Fixture para proporcionar una instancia de MagicMock para TenderServices."""
     return MagicMock(spec=TenderServices)
 
 
@@ -71,6 +69,3 @@ def test_get_monthly_tenders_with_tenders(
     assert isinstance(result, Tenders)
     assert len(result._tenders) == 1
     assert result._tenders[0].code == "12345-1-LP24"
-
-
-

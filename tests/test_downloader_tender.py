@@ -80,18 +80,15 @@ def test_get_tender_url_from_code(tender_downloader: TenderDownloader) -> None:
     expected_query = "abc123"
     expected_url = HttpUrl(f"{base_url}?qs={expected_query}")
 
-    # Simular la respuesta de la cabecera
     mock_response = Mock()
     mock_response.headers = {"Location": f"{base_url}?qs={expected_query}"}
 
     with patch.object(
         tender_downloader.session, "head", return_value=mock_response
     ) as mock_head:
-        # Llamar al método
+
         result = tender_downloader.get_tender_url_from_code(code)
 
-        # Verificar que la sesión HEAD fue llamada con la URL correcta
         mock_head.assert_called_once_with(f"{base_url}?idlicitacion={code}")
 
-        # Verificar que el resultado es el esperado
         assert result == expected_url

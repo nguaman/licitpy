@@ -7,7 +7,6 @@ from licitpy.sources.api import API
 
 @pytest.fixture
 def api_instance() -> API:
-    """Fixture para crear una instancia de API."""
     return API(api_key="licitpy-")
 
 
