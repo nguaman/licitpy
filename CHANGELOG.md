@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.3.0 (2024-11-29)
+
+### Bug Fixes
+
+- Update semantic-release configuration for versioning
+  ([`d35e2c0`](https://github.com/nguaman/licitpy/commit/d35e2c062129b47349229d79dd5d9ccb9d04c21f))
+
+
 ## v0.2.3 (2024-11-29)
 
 ### Bug Fixes
