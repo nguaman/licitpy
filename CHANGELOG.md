@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.2.3 (2024-11-29)
+
+### Bug Fixes
+
+- Title, Description, and Opening Date not included in the creation of the Tender entity
+  ([`62eb9ae`](https://github.com/nguaman/licitpy/commit/62eb9aecb4804ddcf8c26db535a3f826464c163b))
+
+
 ## v0.2.2 (2024-11-29)
 
 ### Bug Fixes
