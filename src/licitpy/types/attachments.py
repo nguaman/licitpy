@@ -17,6 +17,16 @@ class ContentStatus(Enum):
     AVAILABLE = "Downloaded"
 
 
+class FileType(Enum):
+
+    PDF = "pdf"
+    XLSX = "xlsx"
+    DOCX = "docx"
+    DOC = "doc"
+    ZIP = "zip"
+    KMZ = "kmz"
+
+
 class Attachment(BaseModel):
     id: str
     name: str
@@ -24,26 +34,15 @@ class Attachment(BaseModel):
     description: str
     size: int
     upload_date: str
-    _file_type: Optional[str] = PrivateAttr(default=None)
-    _download_fn: Callable[[], tuple[str, str]] = PrivateAttr()
+    file_type: FileType
+    _download_fn: Callable[[], str] = PrivateAttr()
     _content: Optional[str] = PrivateAttr(default=None)
 
     @property
     def content(self) -> Optional[str]:
-        self._file_type, self._content = self._download_fn()
+        if self._content is None:
+            self._content = self._download_fn()
         return self._content
-
-    @property
-    def file_type(self) -> str:
-        if self._file_type is None:
-            _ = self.content
-
-        if self._file_type is None:
-            raise ValueError(
-                "File type could not be determined after content download."
-            )
-
-        return self._file_type
 
     @property
     def content_status(self) -> ContentStatus:

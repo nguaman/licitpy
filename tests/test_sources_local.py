@@ -1,6 +1,7 @@
-import pytest
-from unittest.mock import Mock, MagicMock, patch
 from datetime import date
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 
 from licitpy.entities.tender import Tender
 from licitpy.entities.tenders import Tenders

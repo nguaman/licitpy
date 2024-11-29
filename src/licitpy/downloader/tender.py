@@ -14,6 +14,7 @@ from tqdm import tqdm
 from licitpy.downloader.base import BaseDownloader
 from licitpy.parsers.tender import TenderParser
 from licitpy.settings import settings
+from licitpy.types.attachments import Attachment
 from licitpy.types.tender.open_contract import OpenContract
 from licitpy.types.tender.status import StatusFromCSV
 from licitpy.types.tender.tender import EnrichedTender, TenderFromAPI, TenderFromCSV
@@ -316,3 +317,6 @@ class TenderDownloader(BaseDownloader):
         )
 
         return HttpUrl(f"{base_url}?qs={query}")
+
+    def download_attachment(self, url: HttpUrl, attachment: Attachment) -> str:
+        return self.download_attachment_from_url(url, attachment)

@@ -138,3 +138,17 @@ def test_get_html_element_malformed(base_parser: BaseParser) -> None:
         TypeError, match="expected string or bytes-like object, got 'NoneType'"
     ):
         base_parser.get_html_element(None)  # type: ignore[arg-type]
+
+
+def test_get_on_click_by_element_id(base_parser: BaseParser, example_html: str) -> None:
+    """Test that get_on_click_by_element_id retrieves the correct onclick attribute."""
+    # HTML con un elemento que tiene el atributo `onclick`
+    html = """
+    <html>
+        <body>
+            <button id="btnTest" onclick="doSomething()">Click me</button>
+        </body>
+    </html>
+    """
+    onclick = base_parser.get_on_click_by_element_id(html, "btnTest")
+    assert onclick == "doSomething()", "The onclick attribute should be 'doSomething()'"
