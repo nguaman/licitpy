@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.2.2 (2024-11-29)
+
+### Bug Fixes
+
+- Fix format of tender codes
+  ([`c12d0e0`](https://github.com/nguaman/licitpy/commit/c12d0e03b1b88a3d502773901e57133461310435))
+
+
 ## v0.2.1 (2024-11-29)
 
 ### Bug Fixes
