@@ -44,7 +44,7 @@ jobs:
         with:
           version: 1.8.3
       - name: Install dependencies
-        run: poetry install
+        run: poetry install --with dev
       - name: Semantic Version Release
         id: release
         uses: python-semantic-release/python-semantic-release@v8.3.0
