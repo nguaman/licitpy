@@ -1,12 +1,30 @@
 # CHANGELOG
 
 
+## v0.2.5 (2024-11-29)
+
+### Bug Fixes
+
+- Name "date" is not defined
+  ([`56c3612`](https://github.com/nguaman/licitpy/commit/56c3612a5cbc5e860113b3803292d5c3bcbb6a5a))
+
+### Documentation
+
+- Change version
+  ([`b352966`](https://github.com/nguaman/licitpy/commit/b352966ad7fbbe19a4a70a65cb0a39ef69656911))
+
+
 ## v0.2.4 (2024-11-29)
 
 ### Bug Fixes
 
 - Update semantic-release configuration for versioning
   ([`d35e2c0`](https://github.com/nguaman/licitpy/commit/d35e2c062129b47349229d79dd5d9ccb9d04c21f))
+
+### Build System
+
+- Change version
+  ([`cbcff1a`](https://github.com/nguaman/licitpy/commit/cbcff1a493b06a94ef6d1e951624fb118fa33aae))
 
 
 ## v0.2.3 (2024-11-29)
