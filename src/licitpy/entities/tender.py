@@ -121,7 +121,7 @@ class Tender:
         status: Optional[Status] = None,
         title: Optional[str] = None,
         description: Optional[str] = None,
-        opening_date: Optional[datetime] = None,
+        opening_date: Optional[date] = None,
     ) -> Tender:
         return cls(
             code,
