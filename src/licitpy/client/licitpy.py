@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from typing import Optional, Tuple, Union
+from typing import Tuple, Union
 
 from licitpy.entities.tender import Tender
 from licitpy.entities.tenders import Tenders

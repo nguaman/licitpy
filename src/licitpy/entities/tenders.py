@@ -34,7 +34,12 @@ class Tenders:
         return cls(
             [
                 Tender.from_data(
-                    tender.code, region=tender.region, status=tender.status
+                    tender.code,
+                    region=tender.region,
+                    status=tender.status,
+                    title=tender.title,
+                    description=tender.description,
+                    opening_date=tender.opening_date,
                 )
                 for tender in tenders
             ]
