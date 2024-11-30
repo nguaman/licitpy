@@ -167,3 +167,24 @@ class TenderParser(BaseParser):
         url = f"https://www.mercadopublico.cl/Procurement/Modules/Attachment/ViewAttachment.aspx?enc={enc}"
 
         return HttpUrl(url)
+
+    def get_tender_purchase_order_url(self, html: str) -> HttpUrl:
+
+        purchase_order_popup = self.get_href_by_element_id(html, "imgOrdenCompra")
+
+        if not purchase_order_popup:
+            raise ValueError("Purchase orders not found")
+
+        match = re.search(r"qs=(.*)$", purchase_order_popup)
+
+        if not match:
+            raise ValueError("Purchase Order query string not found")
+
+        qs = match.group(1)
+        url = f"https://www.mercadopublico.cl/Procurement/Modules/RFB/PopUpListOC.aspx?qs={qs}"
+
+        return HttpUrl(url)
+
+    def get_purchase_orders_codes_from_html(self, html: str) -> List[str]:
+        codes = re.findall(r'id="(rptSearchOCDetail_ctl\d{2}_lkNumOC)"', html)
+        return [self.get_text_by_element_id(html, xpath) for xpath in codes]

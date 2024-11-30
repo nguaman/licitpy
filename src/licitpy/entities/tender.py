@@ -5,6 +5,7 @@ from typing import List, Optional
 
 from pydantic import HttpUrl
 
+from licitpy.entities.purchase_orders import PurchaseOrders
 from licitpy.services.tender import TenderServices
 from licitpy.types.attachments import Attachment
 from licitpy.types.tender.open_contract import OpenContract
@@ -44,6 +45,8 @@ class Tender:
         self._attachment_url: Optional[HttpUrl] = None
         self._attachments: Optional[List[Attachment]] = None
         self._signed_base: Optional[Attachment] = None
+        self._purchase_orders: Optional[PurchaseOrders] = None
+
         self.services = services or TenderServices()
 
     @property
@@ -132,6 +135,12 @@ class Tender:
                 self.attachments
             )
         return self._signed_base
+
+    @property
+    def purchase_orders(self) -> PurchaseOrders:
+        if self._purchase_orders is None:
+            self._purchase_orders = self.services.get_tender_purchase_orders(self.html)
+        return self._purchase_orders
 
     @classmethod
     def create(cls, code: str) -> Tender:

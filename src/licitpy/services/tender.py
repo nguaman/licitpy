@@ -6,6 +6,8 @@ from zoneinfo import ZoneInfo
 from pydantic import HttpUrl
 
 from licitpy.downloader.tender import TenderDownloader
+from licitpy.entities.purchase_order import PurchaseOrder
+from licitpy.entities.purchase_orders import PurchaseOrders
 from licitpy.parsers.tender import TenderParser
 from licitpy.types.attachments import Attachment
 from licitpy.types.tender.open_contract import OpenContract
@@ -125,3 +127,14 @@ class TenderServices:
             raise ValueError("No signed base found in attachments.")
 
         return signed_bases[0]
+
+    def get_tender_purchase_order_url(self, html: str) -> HttpUrl:
+        return self.parser.get_tender_purchase_order_url(html)
+
+    def get_tender_purchase_orders(self, html: str) -> PurchaseOrders:
+        url = self.get_tender_purchase_order_url(html)
+
+        html = self.downloader.get_html_from_url(url)
+        codes = self.parser.get_purchase_orders_codes_from_html(html)
+
+        return PurchaseOrders.from_tender([PurchaseOrder(code) for code in codes])

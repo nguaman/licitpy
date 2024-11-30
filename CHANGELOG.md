@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.4.0-alpha.1 (2024-11-30)
+
+### Features
+
+- Add Purchase Order entity
+  ([`aaa042d`](https://github.com/nguaman/licitpy/commit/aaa042d8bf9a55a4e8c459413fa066d31026d488))
+
+
 ## v0.3.0 (2024-11-29)
 
 

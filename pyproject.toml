@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "licitpy"
-version = "0.2.4"
+version = "0.4.0-alpha.1"
 description = "LicitPy: A Python toolbox designed for downloading, parsing, and analyzing public tenders from Chile's Mercado Público."
 authors = ["Nelson Guamán Leiva <nelguaman@gmail.com>"]
 license = "Apache-2.0"
@@ -46,8 +46,9 @@ profile = "black"
 
 [tool.semantic_release]
 
-version_source = "poetry"
-version_variable = "src/licitpy/__init__.py:__version__"
+version_variable = ["src/licitpy/__init__.py:__version__"]
+version_toml = ["pyproject.toml:tool.poetry.version"]
+
 branch = "main"
 upload_to_pypi = false
 upload_to_release = true

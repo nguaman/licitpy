@@ -1,4 +1,5 @@
 import base64
+import random
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
@@ -7,6 +8,7 @@ from requests import Response, Session
 from requests_cache import CachedSession
 
 from licitpy.downloader.base import BaseDownloader
+from licitpy.parsers import _extract_view_state
 from licitpy.settings import settings
 
 
