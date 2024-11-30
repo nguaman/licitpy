@@ -29,6 +29,8 @@ class PartyRoleEnum(Enum):
 
 class TenderCountryEnum(Enum):
     CL = "Chile"
+    US = "Estados Unidos"
+    CO = "Colombia"
 
 
 class Address(BaseModel):

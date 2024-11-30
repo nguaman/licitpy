@@ -2,6 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import pytest
+from lxml.html import HtmlElement
 from pydantic import HttpUrl
 
 from licitpy.parsers.base import ElementNotFoundException
@@ -319,3 +320,95 @@ def test_get_attachment_url_from_html(tender_parser: TenderParser) -> None:
         "https://www.mercadopublico.cl/Procurement/Modules/Attachment/ViewAttachment.aspx?enc=testHash"
     )
     assert url == expected_url, f"The URL should be {expected_url}"
+
+
+def test_get_purchase_orders_codes_from_html(tender_parser: TenderParser) -> None:
+    html = """
+    <html>
+        <body>
+            <a id="rptSearchOCDetail_ctl00_lkNumOC">750301-261-SE24</a>
+            <a id="rptSearchOCDetail_ctl01_lkNumOC">750301-262-SE24</a>
+            <a id="rptSearchOCDetail_ctl02_lkNumOC">750301-263-SE24</a>
+        </body>
+    </html>
+    """
+
+    # Run the function
+    result = tender_parser.get_purchase_orders_codes_from_html(html)
+
+    # Expected output
+    expected_codes = ["750301-261-SE24", "750301-262-SE24", "750301-263-SE24"]
+
+    # Assert the result matches the expected codes
+    assert result == expected_codes, f"Expected {expected_codes}, got {result}"
+
+
+def test_get_tender_purchase_order_url(tender_parser: TenderParser) -> None:
+    html = """
+    <html>
+        <body>
+            <a id="imgOrdenCompra" href="PopUpListOC.aspx?qs=testQueryString"></a>
+        </body>
+    </html>
+    """
+
+    # Run the function
+    url = tender_parser.get_tender_purchase_order_url(html)
+
+    # Expected URL
+    expected_url = HttpUrl(
+        "https://www.mercadopublico.cl/Procurement/Modules/RFB/PopUpListOC.aspx?qs=testQueryString"
+    )
+
+    # Assert the result matches the expected URL
+    assert url == expected_url, f"The URL should be {expected_url}"
+
+
+def test_get_tender_purchase_order_url_no_query_string(
+    tender_parser: TenderParser,
+) -> None:
+    html = """
+    <html>
+        <body>
+            <a id="imgOrdenCompra" href="PopUpListOC.aspx"></a>
+        </body>
+    </html>
+    """
+    with pytest.raises(ValueError, match="Purchase Order query string not found"):
+        tender_parser.get_tender_purchase_order_url(html)
+
+
+def test_get_table_attachments_rows_valid(tender_parser: TenderParser) -> None:
+    html = """
+    <table>
+        <tr class="row1"><td>Row 1</td></tr>
+        <tr class="row2"><td>Row 2</td></tr>
+        <tr class="row3"><td>Row 3</td></tr>
+    </table>
+    """
+    table: HtmlElement = tender_parser.get_html_element(html)
+
+    # Call the function
+    rows = tender_parser._get_table_attachments_rows(table)
+
+    # Assert that the correct number of rows is returned
+    assert len(rows) == 3, f"Expected 3 rows, got {len(rows)}"
+
+    # Optionally, validate the content of rows
+    row_texts = [row.xpath("td/text()")[0] for row in rows]
+    expected_texts = ["Row 1", "Row 2", "Row 3"]
+
+    assert row_texts == expected_texts, f"Expected {expected_texts}, got {row_texts}"
+
+
+def test_get_table_attachments_rows_no_rows(tender_parser: TenderParser) -> None:
+    html = """
+    <table>
+        <!-- No rows with a class -->
+    </table>
+    """
+    table: HtmlElement = tender_parser.get_html_element(html)
+
+    # Call the function and expect an exception
+    with pytest.raises(ValueError, match="No rows found in the table"):
+        tender_parser._get_table_attachments_rows(table)

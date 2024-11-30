@@ -1,8 +1,6 @@
 import base64
 import random
-from typing import Tuple
 
-import magic
 from pydantic import HttpUrl
 from requests import Response, Session
 from requests_cache import CachedSession, disabled

@@ -6,7 +6,7 @@ from typing import List, Optional
 
 import pandas
 import requests
-from pydantic import HttpUrl
+from pydantic import HttpUrl, ValidationError
 from requests_cache import CachedSession
 from tenacity import retry, retry_if_result, stop_after_attempt, wait_fixed
 from tqdm import tqdm
@@ -200,7 +200,10 @@ class TenderDownloader(BaseDownloader):
                 if "records" in data:
                     self.session.cache.save_response(response)
 
-        return OpenContract(**data)
+        try:
+            return OpenContract(**data)
+        except ValidationError as e:
+            raise Exception(f"Error parsing OCDS data for tender {code}") from e
 
     def enrich_tender_with_ocds(self, code: str) -> EnrichedTender:
 
