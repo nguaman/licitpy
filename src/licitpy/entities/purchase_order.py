@@ -46,3 +46,7 @@ class PurchaseOrder:
         if self._title is None:
             self._title = self.services.get_title(self.html)
         return self._title
+
+    @classmethod
+    def create(cls, code: str) -> PurchaseOrder:
+        return cls(code)

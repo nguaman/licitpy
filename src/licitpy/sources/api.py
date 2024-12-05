@@ -1,10 +1,12 @@
 from datetime import date
 
+from licitpy.entities.purchase_order import PurchaseOrder
 from licitpy.entities.tender import Tender
 from licitpy.entities.tenders import Tenders
+from licitpy.sources.base import BaseSource
 
 
-class API:
+class API(BaseSource):
     def __init__(self, api_key: str):
         self.api_key = api_key
 
@@ -12,4 +14,7 @@ class API:
         raise NotImplementedError("This method has not been implemented yet.")
 
     def get_tender(self, code: str) -> Tender:
+        raise NotImplementedError("This method has not been implemented yet.")
+
+    def get_purchase_order(self, code: str) -> PurchaseOrder:
         raise NotImplementedError("This method has not been implemented yet.")

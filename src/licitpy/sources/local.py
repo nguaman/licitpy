@@ -3,6 +3,7 @@ from typing import List, Optional, Tuple
 
 from dateutil.relativedelta import relativedelta
 
+from licitpy.entities.purchase_order import PurchaseOrder
 from licitpy.entities.tender import Tender
 from licitpy.entities.tenders import Tenders
 from licitpy.services.tender import TenderServices
@@ -47,3 +48,6 @@ class Local(BaseSource):
 
     def get_tender(self, code: str) -> Tender:
         return Tender.create(code)
+
+    def get_purchase_order(self, code: str) -> PurchaseOrder:
+        return PurchaseOrder.create(code)

@@ -7,7 +7,7 @@ from licitpy.types.search import TimeRange
 licitpy = Licitpy()
 
 tenders = (
-    licitpy.from_date(time_range=TimeRange.THIS_MONTH)
+    licitpy.tenders.from_date(time_range=TimeRange.THIS_MONTH)
     .by_budget_tier(Tier.L1)
     .with_status(Status.AWARDED)
     .limit(10)
