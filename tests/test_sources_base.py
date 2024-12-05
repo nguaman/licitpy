@@ -2,6 +2,7 @@ from datetime import date
 
 import pytest
 
+from licitpy.entities.purchase_order import PurchaseOrder
 from licitpy.entities.tender import Tender
 from licitpy.entities.tenders import Tenders
 from licitpy.sources.base import BaseSource
@@ -20,6 +21,9 @@ class MockBaseSource(BaseSource):
             description="",
             opening_date=None,
         )
+
+    def get_purchase_order(self, code: str) -> PurchaseOrder:
+        return PurchaseOrder(code)
 
 
 @pytest.fixture

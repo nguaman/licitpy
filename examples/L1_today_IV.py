@@ -5,11 +5,12 @@ from licitpy.types import Region, Tier, TimeRange
 
 licitpy = Licitpy()
 
+
 tenders = (
-    licitpy.from_date(time_range=TimeRange.TODAY)
+    licitpy.tenders.from_date(time_range=TimeRange.TODAY)
     .by_budget_tier(Tier.L1)
     .in_region(Region.IV)
-    .limit(10)
+    .limit(15)
 )
 
 

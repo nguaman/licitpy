@@ -1,9 +1,10 @@
+from unittest.mock import patch
+
 import pytest
 from pydantic import HttpUrl
 
 from licitpy.parsers.purchase_order import PurchaseOrderParser
 from licitpy.types.purchase_order import Status
-from unittest.mock import patch
 
 
 @pytest.fixture

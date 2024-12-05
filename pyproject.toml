@@ -46,7 +46,7 @@ profile = "black"
 
 [tool.semantic_release]
 
-version_variable = ["src/licitpy/__init__.py:__version__"]
+version_variables = ["src/licitpy/__init__.py:__version__"]
 version_toml = ["pyproject.toml:tool.poetry.version"]
 
 branch = "main"

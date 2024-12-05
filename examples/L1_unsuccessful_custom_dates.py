@@ -6,7 +6,7 @@ from licitpy.types import Status, Tier
 licitpy = Licitpy()
 
 tenders = (
-    licitpy.from_date(start_date="2024-11-12", end_date="2024-11-21")
+    licitpy.tenders.from_date(start_date="2024-11-12", end_date="2024-11-21")
     .by_budget_tier(Tier.L1)
     .with_status(Status.UNSUCCESSFUL)
     .limit(50)
