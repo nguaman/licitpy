@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.4.1 (2024-12-05)
+
+### Bug Fixes
+
+- Purchase orders have their own client, allowing you to search for purchase orders directly
+  ([`485294a`](https://github.com/nguaman/licitpy/commit/485294ae1753f733ab02cd62692e159cc63ec677))
+
+
 ## v0.4.0 (2024-11-30)
 
 
@@ -107,14 +115,14 @@
 
 ### Continuous Integration
 
-- Simplify workflows to use Python 3.11 only
-  ([`03ff9d4`](https://github.com/nguaman/licitpy/commit/03ff9d4953d88149ed584aaba13aea8bd4516943))
-
 - Consolidate workflows by updating release.yml
   ([`13a1c65`](https://github.com/nguaman/licitpy/commit/13a1c65a2976f8000a333ccc7689da79c9aef07f))
 
 - Consolidate workflows by updating release.yml and removing test.yml
   ([`02bb388`](https://github.com/nguaman/licitpy/commit/02bb388d4c24f25a49e9b04feec1631d7f0f1349))
+
+- Simplify workflows to use Python 3.11 only
+  ([`03ff9d4`](https://github.com/nguaman/licitpy/commit/03ff9d4953d88149ed584aaba13aea8bd4516943))
 
 ### Features
 
