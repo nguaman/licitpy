@@ -24,13 +24,22 @@ class BaseParser:
 
         return element
 
+    def has_element_id(self, html: str, element_id: str) -> bool:
+        """Check if the HTML element exists by ID."""
+        html_element: HtmlElement = self.get_html_element_by_id(html, element_id)
+        return self.html_element_exists(html_element)
+
+    def html_element_exists(self, html_element: HtmlElement) -> bool:
+        """Check if the HTML element exists."""
+        return len(html_element) != 0
+
     def get_attribute_by_element_id(
         self, html: str, element_id: str, attribute: str
     ) -> str:
 
         html_element: HtmlElement = self.get_html_element_by_id(html, element_id)
 
-        if not html_element:
+        if not self.html_element_exists(html_element):
             raise ElementNotFoundException(f"Element with ID '{element_id}' not found")
 
         attribute_elements = html_element[0].xpath(f".//{attribute}")

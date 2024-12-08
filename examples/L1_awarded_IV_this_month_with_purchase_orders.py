@@ -1,7 +1,8 @@
 from pprint import pprint
 
 from licitpy import Licitpy
-from licitpy.types import Region, Status, Tier
+from licitpy.types import Status, Tier
+from licitpy.types.geography import Region
 from licitpy.types.search import TimeRange
 
 licitpy = Licitpy()

@@ -1,11 +1,7 @@
-import base64
-import tempfile
-import zipfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Optional
 
 import pandas
-import requests
 from pydantic import HttpUrl, ValidationError
 from requests_cache import CachedSession
 from tenacity import retry, retry_if_result, stop_after_attempt, wait_fixed
@@ -15,6 +11,7 @@ from licitpy.downloader.base import BaseDownloader
 from licitpy.parsers.tender import TenderParser
 from licitpy.settings import settings
 from licitpy.types.attachments import Attachment
+from licitpy.types.download import MassiveDownloadSource
 from licitpy.types.tender.open_contract import OpenContract
 from licitpy.types.tender.status import StatusFromCSV
 from licitpy.types.tender.tender import EnrichedTender, TenderFromAPI, TenderFromCSV
@@ -31,7 +28,7 @@ class TenderDownloader(BaseDownloader):
 
         self.parser: TenderParser = parser or TenderParser()
 
-    def get_tender_codes_from_api(
+    def get_tenders_codes_from_api(
         self, year: int, month: int, skip: int = 0, limit: int | None = None
     ) -> List[TenderFromAPI]:
 
@@ -87,54 +84,24 @@ class TenderDownloader(BaseDownloader):
         # Return the exact number of requested records, sliced to the limit
         return tenders[:limit]
 
-    def get_massive_tenders_csv_from_zip(
-        self, year: int, month: int
-    ) -> pandas.DataFrame:
-
-        file_name = f"{year}-{month:01}.zip"
-
-        response: requests.Response = self.session.get(
-            f"https://transparenciachc.blob.core.windows.net/lic-da/{file_name}",
-            timeout=(5, 30),
-            stream=True,
-        )
-
-        file_size = int(response.headers.get("Content-Length", 0))
-
-        content_base64 = self.download_file_base64(response, file_size, file_name)
-
-        with tempfile.NamedTemporaryFile(delete=True, suffix=".zip") as zip_file:
-
-            zip_file.write(base64.b64decode(content_base64))
-            zip_file.flush()
-
-            with zipfile.ZipFile(zip_file.name, "r") as zip_ref:
-                csv_file_name = zip_ref.namelist()[0]
-
-                with zip_ref.open(csv_file_name) as csv_file:
-
-                    df = pandas.read_csv(
-                        csv_file,
-                        encoding="latin1",
-                        sep=";",
-                        usecols=[
-                            "CodigoExterno",
-                            "FechaPublicacion",
-                            "RegionUnidad",
-                            "Estado",
-                            "Nombre",
-                            "Descripcion",
-                        ],
-                        parse_dates=["FechaPublicacion"],
-                    )
-
-        return df
-
-    def get_tender_from_csv(
+    def get_tenders_from_csv(
         self, year: int, month: int, limit: int | None = None
     ) -> List[TenderFromCSV]:
 
-        df: pandas.DataFrame = self.get_massive_tenders_csv_from_zip(year, month)
+        columns: List[str] = [
+            "CodigoExterno",
+            "FechaPublicacion",
+            "RegionUnidad",
+            "Estado",
+            "Nombre",
+            "Descripcion",
+        ]
+
+        dates_columns = ["FechaPublicacion"]
+
+        df: pandas.DataFrame = self.get_massive_csv_from_zip(
+            year, month, columns, dates_columns, MassiveDownloadSource.TENDERS
+        )
 
         # Validate that each 'CodigoExterno' has a unique 'FechaPublicacion'
         if any(df.groupby("CodigoExterno")["FechaPublicacion"].nunique() > 1):
@@ -231,7 +198,7 @@ class TenderDownloader(BaseDownloader):
         # [
         #     TenderFromAPI(CodigoExterno='2943-12-LQ24')
         # ]
-        tenders_from_api: List[TenderFromAPI] = self.get_tender_codes_from_api(
+        tenders_from_api: List[TenderFromAPI] = self.get_tenders_codes_from_api(
             year, month
         )
 
@@ -245,7 +212,7 @@ class TenderDownloader(BaseDownloader):
         #     Descripcion='El objetivo de esta contratación es para amenizar el ...')
         # ]
 
-        tenders_from_csv: List[TenderFromCSV] = self.get_tender_from_csv(year, month)
+        tenders_from_csv: List[TenderFromCSV] = self.get_tenders_from_csv(year, month)
 
         # Filtering tenders that are internal QA tests from Mercado Publico.
         # eg: 500977-191-LS24 : Nombre Unidad : MpOperacionesC

@@ -3,6 +3,7 @@ from enum import Enum
 
 from pydantic import BaseModel
 
+from licitpy.types.geography import Region
 from licitpy.types.tender.status import Status, StatusFromCSV
 
 
@@ -23,26 +24,6 @@ class Tier(Enum):
     R1 = "R1"  # Purchase order less than 3 UTM (R1)
     R2 = "R2"  # Purchase order less than 3 UTM (R2)
     R3 = "R3"  # ?
-
-
-class Region(Enum):
-    XV = "Región de Arica y Parinacota"
-    I = "Región de Tarapacá"  # noqa: E741
-    II = "Región de Antofagasta"
-    III = "Región de Atacama"
-    IV = "Región de Coquimbo"
-    V = "Región de Valparaíso"
-    RM = "Región Metropolitana de Santiago"
-    VI = "Región del Libertador General Bernardo O´Higgins"
-    VII = "Región del Maule"
-    XVI = "Región del Ñuble"
-    VIII = "Región del Biobío"
-    IX = "Región de la Araucanía"
-    XIV = "Región de Los Ríos"
-    X = "Región de los Lagos"
-    XI = "Región Aysén del General Carlos Ibáñez del Campo"
-    XII = "Región de Magallanes y de la Antártica"
-    INTERNATIONAL = "Extranjero"
 
 
 class EnrichedTender(BaseModel):

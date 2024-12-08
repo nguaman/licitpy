@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.5.0-alpha.1 (2024-12-08)
+
+### Features
+
+- - We added tox, bandit, and retrieving the OC region
+  ([`6ef75f8`](https://github.com/nguaman/licitpy/commit/6ef75f85337f13f57a6f43ac265cba8c342402a8))
+
+
 ## v0.4.1 (2024-12-05)
 
 ### Bug Fixes

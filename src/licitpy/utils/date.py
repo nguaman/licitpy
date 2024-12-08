@@ -1,17 +1,50 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from typing import Tuple, Union
 
 from licitpy.types.search import TimeRange
 
 
 def convert_to_date(date_value: str | date) -> date:
+    """
+    Convert a given input into a date object.
 
+    This function handles the following scenarios:
+    - If `date_value` is already a `date` instance, it is returned directly.
+    - If `date_value` is a string, this function attempts to parse it.
+      First, it tries ISO format (YYYY-MM-DD). If that fails, it tries the format (dd-mm-YYYY).
+      If both fail, a ValueError is raised.
+
+    Returns:
+        date: A Python date object.
+
+    Raises:
+        ValueError: If the string does not match the expected formats.
+        TypeError: If the input is neither a string nor a date.
+    """
+
+    # If it's already a date, just return it
     if isinstance(date_value, date):
         return date_value
 
+    # If it's a string, attempt to parse it
     if isinstance(date_value, str):
-        return date.fromisoformat(date_value)
+        # Try ISO format first
+        try:
+            # eg : "yyyy-mm-dd"
+            return date.fromisoformat(date_value)
+        except ValueError:
+            pass  # Try the next format
 
+        # Try dd-mm-yyyy
+        try:
+            return datetime.strptime(date_value, "%d-%m-%Y").date()
+        except ValueError:
+            raise ValueError(
+                f"The date string '{date_value}' does not match ISO (YYYY-MM-DD) "
+                "or dd-mm-yyyy formats."
+            )
+
+    # If the input is neither a string nor a date object
     raise TypeError(f"Expected str or date, got {type(date_value)}")
 
 

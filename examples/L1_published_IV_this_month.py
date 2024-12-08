@@ -18,6 +18,7 @@ tenders = (
 for tender in tenders:
     pprint(
         {
+            "url": tender.url,
             "code": tender.code,
             "region": tender.region,
             "status": tender.status,
