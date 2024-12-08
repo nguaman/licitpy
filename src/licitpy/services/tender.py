@@ -6,17 +6,14 @@ from zoneinfo import ZoneInfo
 from pydantic import HttpUrl
 
 from licitpy.downloader.tender import TenderDownloader
-from licitpy.entities.purchase_order import PurchaseOrder
 from licitpy.entities.purchase_orders import PurchaseOrders
 from licitpy.parsers.tender import TenderParser
 from licitpy.types.attachments import Attachment
 from licitpy.types.tender.open_contract import OpenContract
 from licitpy.types.tender.status import Status, StatusFromOpenContract
 from licitpy.types.tender.tender import Region, TenderFromCSV, Tier
-from licitpy.utils.decorators import singleton
 
 
-@singleton
 class TenderServices:
 
     def __init__(
@@ -137,4 +134,4 @@ class TenderServices:
         html = self.downloader.get_html_from_url(url)
         codes = self.parser.get_purchase_orders_codes_from_html(html)
 
-        return PurchaseOrders.from_tender([PurchaseOrder(code) for code in codes])
+        return PurchaseOrders.from_tender(codes)

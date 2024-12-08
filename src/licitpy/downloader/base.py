@@ -1,6 +1,11 @@
 import base64
 import random
+import tempfile
+import zipfile
+from typing import List
 
+import pandas
+import requests
 from pydantic import HttpUrl
 from requests import Response, Session
 from requests_cache import CachedSession, disabled
@@ -10,6 +15,7 @@ from tqdm import tqdm
 from licitpy.parsers import _extract_view_state
 from licitpy.settings import settings
 from licitpy.types.attachments import Attachment
+from licitpy.types.download import MassiveDownloadSource
 
 
 class BaseDownloader:
@@ -135,3 +141,49 @@ class BaseDownloader:
             )
 
         return self.download_file_base64(response, file_size, file_name)
+
+    def get_massive_csv_from_zip(
+        self,
+        year: int,
+        month: int,
+        columns: List[str],
+        date_columns: List[str],
+        source: MassiveDownloadSource,
+    ) -> pandas.DataFrame:
+
+        file_name = f"{year}-{month:01}.zip"
+
+        # OC : https://transparenciachc.blob.core.windows.net/oc-da/2024-12.zip
+        # LIC: https://transparenciachc.blob.core.windows.net/lic-da/2024-12.zip
+
+        url = f"https://transparenciachc.blob.core.windows.net/{source.value}-da/{file_name}"
+
+        response: requests.Response = self.session.get(
+            url,
+            timeout=(5, 30),
+            stream=True,
+        )
+
+        file_size = int(response.headers.get("Content-Length", 0))
+
+        content_base64 = self.download_file_base64(response, file_size, file_name)
+
+        with tempfile.NamedTemporaryFile(delete=True, suffix=".zip") as zip_file:
+
+            zip_file.write(base64.b64decode(content_base64))
+            zip_file.flush()
+
+            with zipfile.ZipFile(zip_file.name, "r") as zip_ref:
+                csv_file_name = zip_ref.namelist()[0]
+
+                with zip_ref.open(csv_file_name) as csv_file:
+
+                    df = pandas.read_csv(
+                        csv_file,
+                        encoding="latin1",
+                        sep=";",
+                        usecols=columns,
+                        parse_dates=date_columns,
+                    )
+
+        return df

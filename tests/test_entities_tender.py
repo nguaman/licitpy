@@ -3,15 +3,23 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from licitpy.entities.purchase_orders import PurchaseOrders
 from licitpy.entities.tender import Tender
 from licitpy.services.tender import TenderServices
+from licitpy.types.attachments import Attachment
+from licitpy.types.geography import Region
 from licitpy.types.tender.open_contract import OpenContract
 from licitpy.types.tender.status import Status
-from licitpy.types.tender.tender import Region, Tier
+from licitpy.types.tender.tender import Tier
 
 
 @pytest.fixture
-def mock_tender_services() -> TenderServices:
+def mock_purchase_orders() -> MagicMock:
+    return MagicMock(spec=PurchaseOrders)
+
+
+@pytest.fixture
+def mock_tender_services(mock_purchase_orders: MagicMock) -> TenderServices:
 
     mock_services = MagicMock(spec=TenderServices)
 
@@ -24,18 +32,46 @@ def mock_tender_services() -> TenderServices:
         publishedDate="2024-10-14T10:08:27Z",
         records=[],
     )
-    mock_services.get_url.return_value = "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=2513-2-LE24"
-    mock_services.get_html.return_value = "<html>Mock HTML</html>"
+
+    description = """
+        Dichas obras de conservación mejorarán la captura de aguas lluvias, contribuirán a la resiliencia de los bosques nativos, 
+        y a las recargas de las napas freáticas en una superficie total a intervenir de 55 hectáreas, 
+        de las cuales se deben ejecutar un total de 2.948 metros lineales ML de construcción de OCAS, 
+        890 ML de reparación de OCAS.
+    """
+
+    title = "Construcción y Reparación de Obras de Conservación"
+    url = "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=2513-2-LE24"
+    html = """
+        <html>Mock HTML</html>
+    """
+
+    mock_services.get_url.return_value = url
+    mock_services.get_html.return_value = html
     mock_services.get_opening_date.return_value = date(2024, 11, 1)
     mock_services.get_closing_date.return_value = datetime(2024, 11, 30, 23, 59)
     mock_services.is_open.return_value = False
     mock_services.get_status.return_value = Status.UNSUCCESSFUL
-    mock_services.get_title.return_value = (
-        "Construcción y Reparación de Obras de Conservación"
-    )
-    mock_services.get_description.return_value = "Dichas obras de conservación mejorarán la captura de aguas lluvias, contribuirán a la resiliencia de los bosques nativos, y a las recargas de las napas freáticas en una superficie total a intervenir de 55 hectáreas, de las cuales se deben ejecutar un total de 2.948 metros lineales ML de construcción de OCAS, 890 ML de reparación de OCAS."
+    mock_services.get_title.return_value = title
+    mock_services.get_description.return_value = description
     mock_services.get_region.return_value = Region.V
     mock_services.get_tier.return_value = Tier.LE
+
+    mock_services.get_attachment_url.return_value = "https://example.com/attachment"
+    mock_services.get_attachments_from_url.return_value = []
+    mock_services.get_tender_purchase_orders.return_value = mock_purchase_orders
+
+    mock_services.get_signed_base_from_attachments.return_value = Attachment(
+        name="Bases_750301-54-L124.pdf",
+        description="Archivo firmado",
+        type="Anexo Resolucion Electronica (Firmada)",
+        id="123",
+        url="https://example.com/signed_base.pdf",
+        content_type="application/pdf",
+        size=123456,
+        upload_date="2024-12-14",
+        file_type="pdf",
+    )
 
     return mock_services
 
@@ -67,28 +103,23 @@ def test_tender_initialization_code_empty() -> None:
         Tender(code="", region=Region.RM)
 
 
-def test_tender_initialization_with_code_none() -> None:
-    with pytest.raises(
-        TypeError, match="Invalid public market code: code cannot be None"
-    ):
-        Tender.create(code=None)  # type: ignore[arg-type]
-
-
 def test_tender_properties_url(mock_tender_services: TenderServices) -> None:
     """Test that the url property returns the correct value."""
     tender = Tender(code="2513-2-LE24", services=mock_tender_services)
+    url = "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=2513-2-LE24"
 
-    assert (
-        tender.url
-        == "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=2513-2-LE24"
-    )
+    assert tender.url == url
 
 
 def test_tender_properties_html(mock_tender_services: TenderServices) -> None:
     """Test that the html property returns the correct value."""
     tender = Tender(code="2513-2-LE24", services=mock_tender_services)
 
-    assert tender.html == "<html>Mock HTML</html>"
+    html = """
+        <html>Mock HTML</html>
+    """
+
+    assert tender.html == html
 
 
 def test_tender_properties_opening_date(mock_tender_services: TenderServices) -> None:
@@ -129,10 +160,14 @@ def test_tender_properties_description(mock_tender_services: TenderServices) -> 
     """Test that the description property returns the correct value."""
     tender = Tender(code="2513-2-LE24", services=mock_tender_services)
 
-    assert (
-        tender.description
-        == "Dichas obras de conservación mejorarán la captura de aguas lluvias, contribuirán a la resiliencia de los bosques nativos, y a las recargas de las napas freáticas en una superficie total a intervenir de 55 hectáreas, de las cuales se deben ejecutar un total de 2.948 metros lineales ML de construcción de OCAS, 890 ML de reparación de OCAS."
-    )
+    description = """
+        Dichas obras de conservación mejorarán la captura de aguas lluvias, contribuirán a la resiliencia de los bosques nativos, 
+        y a las recargas de las napas freáticas en una superficie total a intervenir de 55 hectáreas, 
+        de las cuales se deben ejecutar un total de 2.948 metros lineales ML de construcción de OCAS, 
+        890 ML de reparación de OCAS.
+    """
+
+    assert tender.description == description
 
 
 def test_tender_properties_region(mock_tender_services: TenderServices) -> None:
@@ -276,10 +311,8 @@ def test_url_property_initialization(mock_tender_services: TenderServices) -> No
     # Triggers lazy initialization
     url_data = tender.url
 
-    assert (
-        url_data
-        == "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=2513-2-LE24"
-    )
+    url = "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=2513-2-LE24"
+    assert url_data == url
 
     # Now it should be set
     assert tender._url is url_data
@@ -368,3 +401,87 @@ def test_tier_property_initialization(mock_tender_services: TenderServices) -> N
 
     # Confirm the same object is returned
     assert tier_data_second_access is tier_data
+
+
+def test_tender_attachment_url_property_initialization(
+    mock_tender_services: MagicMock,
+) -> None:
+    """Test that the attachment_url property initializes correctly and is cached."""
+
+    tender = Tender(code="2513-2-LE24", services=mock_tender_services)
+
+    assert tender._attachment_url is None
+
+    attachment_url = tender.attachment_url
+
+    assert attachment_url == "https://example.com/attachment"
+    assert tender._attachment_url == attachment_url
+
+    mock_tender_services.get_attachment_url.reset_mock()
+
+    attachment_url_again = tender.attachment_url
+    mock_tender_services.get_attachment_url.assert_not_called()
+
+    assert attachment_url_again == attachment_url
+
+
+def test_tender_attachments_property_initialization(
+    mock_tender_services: MagicMock,
+) -> None:
+    """Test that the attachments property initializes correctly and is cached."""
+
+    tender = Tender(code="2513-2-LE24", services=mock_tender_services)
+
+    assert tender._attachments is None
+
+    attachments = tender.attachments
+
+    assert attachments == []
+    assert tender._attachments == attachments
+
+    mock_tender_services.get_attachments_from_url.reset_mock()
+
+    attachments_again = tender.attachments
+    mock_tender_services.get_attachments_from_url.assert_not_called()
+
+    assert attachments_again == attachments
+
+
+def test_tender_purchase_orders_property_initialization(
+    mock_tender_services: MagicMock,
+) -> None:
+    """Test that the purchase_orders property initializes correctly and is cached."""
+    tender = Tender(code="2513-2-LE24", services=mock_tender_services)
+
+    assert tender._purchase_orders is None
+
+    purchase_orders = tender.purchase_orders
+    assert purchase_orders is not None
+    assert tender._purchase_orders == purchase_orders
+
+    mock_tender_services.get_tender_purchase_orders.reset_mock()
+
+    purchase_orders_again = tender.purchase_orders
+    mock_tender_services.get_tender_purchase_orders.assert_not_called()
+    assert purchase_orders_again == purchase_orders
+
+
+def test_tender_signed_base_property_initialization(
+    mock_tender_services: MagicMock,
+) -> None:
+    """Test that the signed_base property initializes correctly and is cached."""
+    tender = Tender(code="2513-2-LE24", services=mock_tender_services)
+
+    assert tender._signed_base is None
+
+    signed_base = tender.signed_base
+
+    assert signed_base is not None
+    assert tender._signed_base == signed_base
+
+    mock_tender_services.get_signed_base_from_attachments.reset_mock()
+
+    signed_base_again = tender.signed_base
+    mock_tender_services.get_signed_base_from_attachments.assert_not_called()
+
+    assert signed_base_again == signed_base

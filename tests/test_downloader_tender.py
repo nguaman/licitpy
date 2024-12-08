@@ -1,13 +1,12 @@
-from datetime import date
 from unittest.mock import MagicMock, Mock, patch
 
 import pandas as pd
 import pytest
 from pydantic import HttpUrl
+from pytest_mock import MockerFixture
+from requests import Response
 
 from licitpy.downloader.tender import TenderDownloader
-from licitpy.parsers.tender import TenderParser
-from licitpy.types.attachments import Attachment, FileType
 from licitpy.types.tender.open_contract import (
     CompiledRelease,
     OpenContract,
@@ -15,22 +14,18 @@ from licitpy.types.tender.open_contract import (
     Record,
     Tender,
 )
-from licitpy.types.tender.status import StatusFromCSV
-from licitpy.types.tender.tender import (
-    EnrichedTender,
-    Region,
-    TenderFromAPI,
-    TenderFromCSV,
-)
+from licitpy.types.tender.tender import TenderFromAPI
 
 
 @pytest.fixture
 def tender_downloader() -> TenderDownloader:
+    """Returns a TenderDownloader instance"""
     return TenderDownloader()
 
 
 @pytest.fixture
 def mock_csv_data() -> pd.DataFrame:
+    """Returns a mock DataFrame with tender data"""
     return pd.DataFrame(
         {
             "CodigoExterno": ["1234-56-LQ20", "7890-12-LP21"],
@@ -43,39 +38,11 @@ def mock_csv_data() -> pd.DataFrame:
     )
 
 
-def test_get_tender_from_csv(
-    tender_downloader: TenderDownloader, mock_csv_data: pd.DataFrame
+def test_get_tender_codes_from_api(
+    tender_downloader: TenderDownloader, mocker: MockerFixture
 ) -> None:
-    with patch.object(
-        tender_downloader,
-        "get_massive_tenders_csv_from_zip",
-        return_value=mock_csv_data,
-    ):
-        result = tender_downloader.get_tender_from_csv(2024, 11)
+    """Test the get_tender_codes_from_api method."""
 
-        expected = [
-            TenderFromCSV(
-                CodigoExterno="1234-56-LQ20",
-                FechaPublicacion=date(2024, 11, 1),
-                RegionUnidad="Región de Antofagasta",
-                Estado=StatusFromCSV.AWARDED,
-                Nombre="Título1",
-                Descripcion="Descripción1",
-            ),
-            TenderFromCSV(
-                CodigoExterno="7890-12-LP21",
-                FechaPublicacion=date(2024, 11, 2),
-                RegionUnidad="Región de Atacama",
-                Estado=StatusFromCSV.PUBLISHED,
-                Nombre="Título2",
-                Descripcion="Descripción2",
-            ),
-        ]
-
-        assert result == expected
-
-
-def test_get_tender_codes_from_api(tender_downloader: TenderDownloader) -> None:
     mock_response = {
         "pagination": {"total": 2},
         "data": [
@@ -84,17 +51,21 @@ def test_get_tender_codes_from_api(tender_downloader: TenderDownloader) -> None:
         ],
     }
 
-    with patch.object(
-        tender_downloader.session, "get", return_value=Mock(json=lambda: mock_response)
-    ):
-        result = tender_downloader.get_tender_codes_from_api(2024, 11)
+    mock_get_response = MagicMock(spec=Response)
+    mock_get_response.json.return_value = mock_response
 
-        expected = [
-            TenderFromAPI(CodigoExterno="1234-56-LQ20"),
-            TenderFromAPI(CodigoExterno="7890-12-LP21"),
-        ]
+    mocker.patch.object(
+        tender_downloader.session,
+        "get",
+        return_value=mock_get_response,
+    )
 
-        assert result == expected
+    result = tender_downloader.get_tenders_codes_from_api(2024, 11)
+
+    assert result == [
+        TenderFromAPI(CodigoExterno="1234-56-LQ20"),
+        TenderFromAPI(CodigoExterno="7890-12-LP21"),
+    ]
 
 
 def test_enrich_tender_with_ocds(tender_downloader: TenderDownloader) -> None:
@@ -178,7 +149,7 @@ def test_get_tender_codes_from_api_with_limit(
     with patch.object(
         tender_downloader.session, "get", return_value=Mock(json=lambda: mock_response)
     ):
-        result = tender_downloader.get_tender_codes_from_api(2024, 11, limit=3)
+        result = tender_downloader.get_tenders_codes_from_api(2024, 11, limit=3)
 
         expected = [
             TenderFromAPI(CodigoExterno="1234-56-LQ20"),

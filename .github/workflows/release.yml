@@ -24,8 +24,8 @@ jobs:
           version: 1.8.3
       - name: Install dependencies
         run: poetry install --with dev
-      - name: Run tests with coverage
-        run: poetry run pytest
+      - name: Run tests and checks with tox
+        run: poetry run tox
 
   release:
     needs: test

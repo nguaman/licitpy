@@ -1,20 +1,19 @@
-from datetime import date, timedelta
+from datetime import date
 from typing import List
 
 import pytest
-from pytest_mock import MockerFixture
 
-from licitpy import settings
 from licitpy.client.licitpy import Licitpy
 from licitpy.entities.tender import Tender
 from licitpy.sources.api import API
 from licitpy.sources.local import Local
+from licitpy.types.geography import Region
 from licitpy.types.tender.status import Status
-from licitpy.types.tender.tender import Region
 
 
 @pytest.fixture
 def sample_tenders() -> List[Tender]:
+    """ Returns a list of sample tenders """
     return [
         Tender(
             code="3955-54-LE24",
@@ -52,6 +51,7 @@ def sample_tenders() -> List[Tender]:
 
 
 def test_licitpy_initialization_with_api_key() -> None:
+    """ Test the initialization of the Licitpy client with an API key """
     api_key = "licitpy-"
     licitpy = Licitpy(api_key=api_key)
 
@@ -60,12 +60,14 @@ def test_licitpy_initialization_with_api_key() -> None:
 
 
 def test_licitpy_initialization_without_api_key() -> None:
+    """ Test the initialization of the Licitpy client without an API key """
     licitpy = Licitpy()
 
     assert isinstance(licitpy.source, Local)
 
 
 def test_licitpy_tenders_client() -> None:
+    """ Test the initialization of the tenders client """
     api_key = "licitpy-"
     licitpy = Licitpy(api_key=api_key)
 
@@ -76,6 +78,7 @@ def test_licitpy_tenders_client() -> None:
 
 
 def test_licitpy_purchase_orders_client() -> None:
+    """ Test the initialization of the purchase orders client """
     api_key = "licitpy-"
     licitpy = Licitpy(api_key=api_key)
 

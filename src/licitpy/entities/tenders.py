@@ -6,8 +6,9 @@ from typing import Iterator, List
 import pandas
 
 from licitpy.entities.tender import Tender
+from licitpy.types.geography import Region
 from licitpy.types.tender.status import Status
-from licitpy.types.tender.tender import Region, Tier
+from licitpy.types.tender.tender import Tier
 
 
 class Tenders:
@@ -31,19 +32,7 @@ class Tenders:
 
     @classmethod
     def from_tenders(cls, tenders: List[Tender]) -> Tenders:
-        return cls(
-            [
-                Tender.from_data(
-                    tender.code,
-                    region=tender.region,
-                    status=tender.status,
-                    title=tender.title,
-                    description=tender.description,
-                    opening_date=tender.opening_date,
-                )
-                for tender in tenders
-            ]
-        )
+        return cls(tenders)
 
     @property
     def codes(self) -> List[str]:

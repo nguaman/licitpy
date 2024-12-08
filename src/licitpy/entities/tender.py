@@ -8,9 +8,10 @@ from pydantic import HttpUrl
 from licitpy.entities.purchase_orders import PurchaseOrders
 from licitpy.services.tender import TenderServices
 from licitpy.types.attachments import Attachment
+from licitpy.types.geography import Region
 from licitpy.types.tender.open_contract import OpenContract
 from licitpy.types.tender.status import Status
-from licitpy.types.tender.tender import Region, Tier
+from licitpy.types.tender.tender import Tier
 from licitpy.utils.validators import is_valid_public_market_code
 
 
@@ -32,15 +33,17 @@ class Tender:
 
         self.code: str = code
 
-        self._ocds: Optional[OpenContract] = None
-        self._html: Optional[str] = None
-        self._status: Optional[Status] = status
         self._url: Optional[HttpUrl] = None
+        self._html: Optional[str] = None
+
+        self._region: Optional[Region] = region
+        self._status: Optional[Status] = status
         self._title: Optional[str] = title
+        self._description: Optional[str] = description
+
+        self._ocds: Optional[OpenContract] = None
         self._opening_date: Optional[date] = opening_date
         self._tier: Optional[Tier] = None
-        self._description: Optional[str] = description
-        self._region: Optional[Region] = region
         self._closing_date: Optional[datetime] = None
         self._attachment_url: Optional[HttpUrl] = None
         self._attachments: Optional[List[Attachment]] = None
@@ -143,10 +146,6 @@ class Tender:
         return self._purchase_orders
 
     @classmethod
-    def create(cls, code: str) -> Tender:
-        return cls(code)
-
-    @classmethod
     def from_data(
         cls,
         code: str,
@@ -156,6 +155,7 @@ class Tender:
         title: Optional[str] = None,
         description: Optional[str] = None,
         opening_date: Optional[date] = None,
+        services: Optional[TenderServices] = None,
     ) -> Tender:
         return cls(
             code,
@@ -164,4 +164,5 @@ class Tender:
             title=title,
             description=description,
             opening_date=opening_date,
+            services=services,
         )

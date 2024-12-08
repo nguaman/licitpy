@@ -3,8 +3,8 @@ from typing import List
 
 from pydantic import BaseModel, field_validator
 
+from licitpy.types.geography import Region
 from licitpy.types.tender.status import StatusFromOpenContract
-from licitpy.types.tender.tender import Region
 
 
 class Period(BaseModel):

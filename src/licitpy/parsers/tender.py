@@ -8,9 +8,10 @@ from pydantic import HttpUrl
 
 from licitpy.parsers.base import BaseParser
 from licitpy.types.attachments import Attachment, FileType
+from licitpy.types.geography import Region
 from licitpy.types.tender.open_contract import OpenContract, PartyRoleEnum
 from licitpy.types.tender.status import StatusFromImage, StatusFromOpenContract
-from licitpy.types.tender.tender import Region, Tier
+from licitpy.types.tender.tender import Tier
 
 
 class TenderParser(BaseParser):
