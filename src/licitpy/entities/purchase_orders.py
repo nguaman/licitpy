@@ -55,3 +55,6 @@ class PurchaseOrders:
 
     def __iter__(self) -> Iterator[PurchaseOrder]:
         return iter(self._purchase_orders)
+
+    def __getitem__(self, index: int) -> PurchaseOrder:
+        return self._purchase_orders[index]

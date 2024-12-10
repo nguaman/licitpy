@@ -2,11 +2,36 @@
 name = "licitpy"
 version = "0.5.0"
 description = "LicitPy: A Python toolbox designed for downloading, parsing, and analyzing public tenders from Chile's Mercado Público."
-authors = ["Nelson Guamán Leiva <nelguaman@gmail.com>"]
+authors = ["Nelson Guamán"]
 license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/nguaman/licitpy"
 packages = [{ include = "licitpy", from = "src" }]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Government",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Office/Business :: Financial :: Accounting",
+    "Natural Language :: Spanish",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: Apache Software License",
+]
+keywords = [
+    "licitaciones",
+    "licitpy",
+    "mercado público",
+    "chile compras",
+    "compras públicas chile",
+    "licitaciones públicas",
+    "convenio marco",
+    "trato directo",
+]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
@@ -52,7 +77,7 @@ version_variables = ["src/licitpy/__init__.py:__version__"]
 version_toml = ["pyproject.toml:tool.poetry.version"]
 
 branch = "main"
-upload_to_pypi = false
+upload_to_pypi = true
 upload_to_release = true
 build_command = "poetry build"
 commit_version_number = true
@@ -67,7 +92,7 @@ prerelease = true
 prerelease_token = "alpha"
 
 [tool.pytest.ini_options]
-addopts = "--cov=licitpy --cov-reset  --cov-config=.coveragerc --cov-report=term-missing --cov-fail-under=80"
+addopts = "--cov=src/licitpy --cov-config=.coveragerc --cov-report=term-missing --cov-fail-under=80"
 pythonpath = ["src"]
 
 [tool.mypy]

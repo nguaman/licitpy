@@ -59,5 +59,8 @@ class BaseParser:
     def get_href_by_element_id(self, html: str, element_id: str) -> str:
         return self.get_attribute_by_element_id(html, element_id, "@href")
 
+    def get_value_by_element_id(self, html: str, element_id: str) -> str:
+        return self.get_attribute_by_element_id(html, element_id, "@value")
+
     def get_view_state(self, html: str) -> str:
         return self.get_attribute_by_element_id(html, "__VIEWSTATE", "@value")

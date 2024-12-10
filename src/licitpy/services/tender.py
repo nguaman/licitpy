@@ -11,7 +11,7 @@ from licitpy.parsers.tender import TenderParser
 from licitpy.types.attachments import Attachment
 from licitpy.types.tender.open_contract import OpenContract
 from licitpy.types.tender.status import Status, StatusFromOpenContract
-from licitpy.types.tender.tender import Region, TenderFromCSV, Tier
+from licitpy.types.tender.tender import Question, Region, TenderFromCSV, Tier
 
 
 class TenderServices:
@@ -135,3 +135,12 @@ class TenderServices:
         codes = self.parser.get_purchase_orders_codes_from_html(html)
 
         return PurchaseOrders.from_tender(codes)
+
+    def get_questions_url(self, html: str) -> HttpUrl:
+        return self.parser.get_questions_url(html)
+
+    def get_questions(self, url: HttpUrl) -> List[Question]:
+        html = self.downloader.get_html_from_url(url)
+        code = self.parser.get_question_code(html)
+
+        return self.downloader.get_tender_questions(code)

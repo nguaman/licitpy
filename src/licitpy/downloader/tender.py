@@ -14,7 +14,13 @@ from licitpy.types.attachments import Attachment
 from licitpy.types.download import MassiveDownloadSource
 from licitpy.types.tender.open_contract import OpenContract
 from licitpy.types.tender.status import StatusFromCSV
-from licitpy.types.tender.tender import EnrichedTender, TenderFromAPI, TenderFromCSV
+from licitpy.types.tender.tender import (
+    EnrichedTender,
+    Question,
+    QuestionAnswer,
+    TenderFromAPI,
+    TenderFromCSV,
+)
 
 
 class TenderDownloader(BaseDownloader):
@@ -290,3 +296,47 @@ class TenderDownloader(BaseDownloader):
 
     def download_attachment(self, url: HttpUrl, attachment: Attachment) -> str:
         return self.download_attachment_from_url(url, attachment)
+
+    def get_tender_questions(self, code: str) -> List[Question]:
+        questions = self.session.get(
+            "https://www.mercadopublico.cl/Foros/Modules/FNormal/servicesPub.aspx",
+            data={"opt": "101", "RFBCode": code},
+        ).json()
+
+        
+        # eg: Tender : 750301-54-L124
+        # [
+        #     {
+        #         "idP": 1,
+        #         "Numero": 6105959,
+        #         "Descripcion": "Buenos días\n¿Se puede participar por línea?",
+        #         "FechaHora": "05-11-2024 13:08:52",
+        #         "Estado": 8,
+        #         "RespuestaPublicada": {
+        #             "idR": 5581150,
+        #             "Descripcion": "SE PUEDE OFERTAR POR LÍNEA SEGÚN LO ESTABLECIDO EN LAS PRESENTES BASES.",
+        #             "EstadoR": 4,
+        #             "FechaHora": "07-11-2024 12:00:01"
+        #         }
+        #     }
+        # ]
+
+        return [
+            Question(
+                id=question["Numero"],
+                text=str(question["Descripcion"])
+                .replace("\n", " ")
+                .lower()
+                .capitalize(),
+                created_at=question["FechaHora"],
+                answer=QuestionAnswer(
+                    id=question["RespuestaPublicada"]["idR"],
+                    text=str(question["RespuestaPublicada"]["Descripcion"])
+                    .replace("\n", " ")
+                    .lower()
+                    .capitalize(),
+                    created_at=question["RespuestaPublicada"]["FechaHora"],
+                ),
+            )
+            for question in questions
+        ]

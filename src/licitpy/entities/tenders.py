@@ -46,3 +46,6 @@ class Tenders:
 
     def __iter__(self) -> Iterator[Tender]:
         return iter(self._tenders)
+
+    def __getitem__(self, index: int) -> Tender:
+        return self._tenders[index]
