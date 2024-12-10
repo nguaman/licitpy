@@ -29,6 +29,7 @@ jobs:
   release:
     needs: test
     runs-on: ubuntu-latest
+    environment: pypi
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
