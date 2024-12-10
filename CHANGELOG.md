@@ -1,6 +1,22 @@
 # CHANGELOG
 
 
+## v0.6.0 (2024-12-10)
+
+### Continuous Integration
+
+- Avoid using bash
+  ([`7ff564e`](https://github.com/nguaman/licitpy/commit/7ff564e7da4c2ec0b77db1a24ad988c4d607eec4))
+
+- Github Action is triggered when changes are made to the main branch
+  ([`05dcc59`](https://github.com/nguaman/licitpy/commit/05dcc5968d81e72ad2cbaf93c96c4af2b59eebfa))
+
+### Features
+
+- Tender questions
+  ([`9c6d62d`](https://github.com/nguaman/licitpy/commit/9c6d62dd31a5e6d35bba2370dfa596f7ce7c8b91))
+
+
 ## v0.5.0 (2024-12-08)
 
 
