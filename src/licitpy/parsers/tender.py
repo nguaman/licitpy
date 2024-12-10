@@ -189,3 +189,21 @@ class TenderParser(BaseParser):
     def get_purchase_orders_codes_from_html(self, html: str) -> List[str]:
         codes = re.findall(r'id="(rptSearchOCDetail_ctl\d{2}_lkNumOC)"', html)
         return [self.get_text_by_element_id(html, xpath) for xpath in codes]
+
+    def get_questions_url(self, html: str) -> HttpUrl:
+
+        href = self.get_href_by_element_id(html, "imgPreguntasLicitacion")
+        match = re.search(r"qs=(.*)$", href)
+
+        if not match:
+            raise ValueError("Questions query string not found")
+
+        qs = match.group(1)
+        url = f"https://www.mercadopublico.cl/Foros/Modules/FNormal/PopUps/PublicView.aspx?qs={qs}"
+
+        return HttpUrl(url)
+
+    def get_question_code(self, html: str) -> str:
+        return self.get_value_by_element_id(html, "h_intRBFCode")
+
+    

@@ -2,7 +2,15 @@
 
 LicitPy: A Python toolbox designed for downloading, parsing, and analyzing public tenders from Chile's Mercado Público.
 
+## Install
+
+```bash
+pip install licitpy
+```
+
 ## Example
+
+### Tenders
 
 - Get tenders from today, with budget tier L1, in region IV, and limit to 10 tenders
 
@@ -20,7 +28,6 @@ tenders = (
     .in_region(Region.IV)
     .limit(10)
 )
-
 
 for tender in tenders:
     pprint(

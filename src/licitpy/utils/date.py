@@ -1,5 +1,6 @@
 from datetime import date, datetime, timedelta
 from typing import Tuple, Union
+from zoneinfo import ZoneInfo
 
 from licitpy.types.search import TimeRange
 
@@ -46,6 +47,35 @@ def convert_to_date(date_value: str | date) -> date:
 
     # If the input is neither a string nor a date object
     raise TypeError(f"Expected str or date, got {type(date_value)}")
+
+
+def convert_to_datetime(
+    date_str: str, input_format: str, timezone: str = "America/Santiago"
+) -> datetime:
+    """
+    Converts a date string from a specified format to a datetime object
+    with the given timezone.
+
+    Args:
+        date_str (str): The date string to convert.
+        input_format (str): The format of the input date string (e.g., '%d-%m-%Y %H:%M:%S').
+        timezone (str): The timezone to apply. Default is 'America/Santiago'.
+
+    Returns:
+        datetime: The converted datetime object with the specified timezone.
+
+    Raises:
+        ValueError: If the date string does not match the input format.
+    """
+    try:
+        # Parse the date string using the provided format
+        parsed_date = datetime.strptime(date_str, input_format)
+        # Apply the specified timezone
+        return parsed_date.replace(tzinfo=ZoneInfo(timezone))
+    except ValueError:
+        raise ValueError(
+            f"Invalid date format: {date_str}. Expected format: '{input_format}'"
+        )
 
 
 def _time_range(time_range: TimeRange) -> Tuple[date, date]:

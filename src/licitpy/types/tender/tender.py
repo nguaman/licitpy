@@ -1,10 +1,11 @@
-from datetime import date
+from datetime import date, datetime
 from enum import Enum
 
-from pydantic import BaseModel
-
+from pydantic import BaseModel, field_validator
 from licitpy.types.geography import Region
 from licitpy.types.tender.status import Status, StatusFromCSV
+from zoneinfo import ZoneInfo
+from licitpy.utils.date import convert_to_datetime
 
 
 class Tier(Enum):
@@ -45,3 +46,26 @@ class TenderFromCSV(BaseModel):
     Estado: StatusFromCSV
     Nombre: str
     Descripcion: str
+
+
+class QuestionAnswer(BaseModel):
+    id: int
+    text: str
+    created_at: datetime
+
+    @field_validator("created_at", mode="before")
+    def validate_fecha_hora(cls, value: str) -> datetime:
+        # "07-11-2024 12:00:01"
+        return convert_to_datetime(value, "%d-%m-%Y %H:%M:%S")
+
+
+class Question(BaseModel):
+    id: int
+    text: str
+    created_at: datetime
+    answer: QuestionAnswer
+
+    @field_validator("created_at", mode="before")
+    def validate_fecha_hora(cls, value: str) -> datetime:
+        # "05-11-2024 13:08:52"
+        return convert_to_datetime(value, "%d-%m-%Y %H:%M:%S")
