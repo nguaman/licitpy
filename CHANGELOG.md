@@ -1,9 +1,25 @@
 # CHANGELOG
 
 
+## v0.6.1 (2024-12-10)
+
+### Bug Fixes
+
+- Correction of the tenders parser and addition of more file extension types
+  ([`78c70c2`](https://github.com/nguaman/licitpy/commit/78c70c2abb7a713b0634841f16f25bfe503222fe))
+
+### Continuous Integration
+
+- Remove topics
+  ([`b6461f4`](https://github.com/nguaman/licitpy/commit/b6461f49e70d2a1719da8a7be08f8fb7f2f7168a))
+
+
 ## v0.6.0 (2024-12-10)
 
 ### Continuous Integration
+
+- Add environment
+  ([`cb76f51`](https://github.com/nguaman/licitpy/commit/cb76f51ca3c96adbd137fb34aba24b284326931b))
 
 - Avoid using bash
   ([`7ff564e`](https://github.com/nguaman/licitpy/commit/7ff564e7da4c2ec0b77db1a24ad988c4d607eec4))
