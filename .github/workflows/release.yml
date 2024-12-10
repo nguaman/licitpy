@@ -29,7 +29,6 @@ jobs:
   release:
     needs: test
     runs-on: ubuntu-latest
-    environment: pypi
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -56,6 +55,3 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ steps.release.outputs.tag }}
-      - name: Publish to PyPI
-        if: steps.release.outputs.released == 'true'
-        run: poetry publish --build --username __token__ --password ${{ secrets.PYPI_TOKEN }}
