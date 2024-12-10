@@ -4,7 +4,6 @@ from enum import Enum
 from pydantic import BaseModel, field_validator
 from licitpy.types.geography import Region
 from licitpy.types.tender.status import Status, StatusFromCSV
-from zoneinfo import ZoneInfo
 from licitpy.utils.date import convert_to_datetime
 
 

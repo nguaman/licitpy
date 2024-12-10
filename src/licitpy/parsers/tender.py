@@ -116,8 +116,13 @@ class TenderParser(BaseParser):
 
         return match.group(1)
 
-    def _extract_content_from_attachment_row(self, td: HtmlElement) -> str:
-        return td.xpath("span/text()")[0]
+    def _extract_content_from_attachment_row(self, td: HtmlElement) -> str | None:
+        content = td.xpath("span/text()")
+
+        if content:
+            return content[0]
+
+        return None
 
     def get_attachments(self, html: str) -> List[Attachment]:
 
@@ -130,11 +135,14 @@ class TenderParser(BaseParser):
             td: List[HtmlElement] = tr.xpath("td")
 
             attachment_id: str = self._extract_attachment_id(td[0])
-            name: str = self._extract_content_from_attachment_row(td[1])
-            attachment_type: str = self._extract_content_from_attachment_row(td[2])
-            description: str = self._extract_content_from_attachment_row(td[3])
+            name = self._extract_content_from_attachment_row(td[1])
+            attachment_type = self._extract_content_from_attachment_row(td[2])
+            description = self._extract_content_from_attachment_row(td[3])
             size: int = self._parse_size_attachment(td[4])
-            upload_date: str = self._extract_content_from_attachment_row(td[5])
+            upload_date = self._extract_content_from_attachment_row(td[5])
+
+            if not name:
+                raise ValueError("Attachment name not found")
 
             # Bases_686617-1-L124.pdf
             file_type = FileType(name.split(".")[-1])
@@ -205,5 +213,3 @@ class TenderParser(BaseParser):
 
     def get_question_code(self, html: str) -> str:
         return self.get_value_by_element_id(html, "h_intRBFCode")
-
-    
