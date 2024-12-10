@@ -25,7 +25,9 @@ class FileType(Enum):
     DOC = "doc"
     ZIP = "zip"
     KMZ = "kmz"
-
+    JPG = "jpg"
+    RTF = "rtf"
+    RAR = "rar"
 
 class Attachment(BaseModel):
     id: str
