@@ -303,7 +303,6 @@ class TenderDownloader(BaseDownloader):
             data={"opt": "101", "RFBCode": code},
         ).json()
 
-        
         # eg: Tender : 750301-54-L124
         # [
         #     {

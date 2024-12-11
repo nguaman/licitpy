@@ -2,6 +2,7 @@ from datetime import date, datetime
 from enum import Enum
 
 from pydantic import BaseModel, field_validator
+
 from licitpy.types.geography import Region
 from licitpy.types.tender.status import Status, StatusFromCSV
 from licitpy.utils.date import convert_to_datetime
@@ -68,3 +69,45 @@ class Question(BaseModel):
     def validate_fecha_hora(cls, value: str) -> datetime:
         # "05-11-2024 13:08:52"
         return convert_to_datetime(value, "%d-%m-%Y %H:%M:%S")
+
+
+class Unit(Enum):
+    BOTTLE = "Botella"
+    JAR = "Frasco"
+    UNIT = "Unidad"
+    KIT = "Kit"
+    TUBE = "Tubo"
+    ROLL = "Rollo"
+    STRIP = "Tira"
+    TABLET = "Comprimido"
+    AMPOULE = "Ampolla"
+    OINTMENT_TUBE = "Pomo"
+    GLOBAL = "Global"
+    PAIR = "Par"
+    SET = "Juego"
+    BOX = "Caja"
+    PACK = "Pack"
+    SHEET = "Pliego"
+    DOSE = "Dosis"
+    SACK = "Saco"
+    BUCKET = "Tineta"
+    GALLON = "Galón"
+    CARTRIDGE = "Cartucho"
+    BAG = "Bolsa"
+    KILOGRAM = "kilogramo"
+    BAR = "Barra"
+    CENTIMETER = "Centímetro"
+    CARTON = "Cartón"
+    POT = "Pote"
+    JERRYCAN = "Bidón"
+    YEAR = "Año"
+    UNDEFINED = "Unidad no definida"
+
+
+class Item(BaseModel):
+    index: int
+    title: str
+    category: int
+    description: str
+    quantity: int
+    unit: Unit

@@ -10,7 +10,7 @@ from licitpy.sources import API, Local
 
 
 class Licitpy:
-    
+
     def __init__(
         self,
         api_key: str | None = None,

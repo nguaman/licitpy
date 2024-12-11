@@ -1,5 +1,5 @@
-from datetime import date
 import unicodedata
+from datetime import date
 
 from pydantic import HttpUrl
 

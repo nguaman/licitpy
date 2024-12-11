@@ -21,14 +21,14 @@ def mock_purchase_orders() -> List[str]:
 def test_purchase_orders_from_tender(mock_purchase_orders: List[str]) -> None:
     """Test the creation of a PurchaseOrders instance from a list of purchase order codes."""
     purchase_orders = PurchaseOrders.from_tender(mock_purchase_orders)
-    
+
     assert isinstance(purchase_orders, PurchaseOrders)
     assert purchase_orders.count() == len(mock_purchase_orders)
 
 
 def test_purchase_orders_limit(mock_purchase_orders: List[PurchaseOrder]) -> None:
     """Test the limit method of the PurchaseOrders entity."""
-    
+
     purchase_orders = PurchaseOrders(mock_purchase_orders)
     limited_purchase_orders = purchase_orders.limit(3)
 

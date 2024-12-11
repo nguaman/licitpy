@@ -11,7 +11,7 @@ from licitpy.types.attachments import Attachment, FileType
 from licitpy.types.geography import Region
 from licitpy.types.tender.open_contract import OpenContract, PartyRoleEnum
 from licitpy.types.tender.status import StatusFromImage, StatusFromOpenContract
-from licitpy.types.tender.tender import Tier
+from licitpy.types.tender.tender import Item, Tier, Unit
 
 
 class TenderParser(BaseParser):
@@ -213,3 +213,61 @@ class TenderParser(BaseParser):
 
     def get_question_code(self, html: str) -> str:
         return self.get_value_by_element_id(html, "h_intRBFCode")
+
+    def get_item_codes_from_html(self, html: str) -> List[str]:
+        """
+        Extract numerical codes from 'id' attributes in the HTML
+        that match the pattern 'grvProducto_ctlXX_lblNumero'.
+
+        We do this to identify the total number of
+        products or services included in the tender.
+
+        Args:
+            html (str): The HTML content as a string.
+
+        Returns:
+            List[str]: A list of numerical codes (e.g., ['02', '03', '04']).
+        """
+
+        html_element: HtmlElement = self.get_html_element(html)
+
+        # [
+        #     "grvProducto_ctl02_lblNumero",
+        #     "grvProducto_ctl03_lblNumero",
+        #     "grvProducto_ctl04_lblNumero",
+        #     "grvProducto_ctl05_lblNumero",
+        #     "grvProducto_ctl06_lblNumero",
+        #     "grvProducto_ctl07_lblNumero",
+        #     "grvProducto_ctl08_lblNumero",
+        # ]
+
+        elements = html_element.xpath(
+            "//@id[starts-with(., 'grvProducto_ctl') and contains(., '_lblNumero')]"
+        )
+
+        # ['02', '03', '04', '05', '06', '07', '08']
+        return [
+            match.group(1)
+            for element in elements
+            if (match := re.search(r"ctl(\d+)_lblNumero", element))
+        ]
+
+    def get_item_from_code(self, html: str, code: str) -> Item:
+
+        base_id = f"grvProducto_ctl{code}_lbl"
+
+        index = self.get_text_by_element_id(html, f"{base_id}Numero")
+        title = self.get_text_by_element_id(html, f"{base_id}Producto")
+        category = self.get_text_by_element_id(html, f"{base_id}Categoria")
+        description = self.get_text_by_element_id(html, f"{base_id}Descripcion")
+        quantity = self.get_text_by_element_id(html, f"{base_id}Cantidad")
+        unit = self.get_text_by_element_id(html, f"{base_id}Unidad")
+
+        return Item(
+            index=int(index),
+            title=title,
+            category=int(category),
+            description=description,
+            quantity=int(quantity),
+            unit=Unit(unit),
+        )

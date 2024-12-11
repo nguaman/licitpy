@@ -5,12 +5,12 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 from pydantic import HttpUrl
+from pytest_mock import MockerFixture
 from requests import Response, Session
 from requests_cache import CachedSession
 
 from licitpy.downloader.base import BaseDownloader
 from licitpy.settings import settings
-from pytest_mock import MockerFixture
 
 
 @pytest.fixture
