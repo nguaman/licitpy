@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.7.0 (2024-12-11)
+
+### Continuous Integration
+
+- Add workflow_dispatch
+  ([`d6b9ff2`](https://github.com/nguaman/licitpy/commit/d6b9ff202fe15d288f089d44d2ac88e665f6bc17))
+
+### Features
+
+- We added the parsing of items for tenders
+  ([`e3e3140`](https://github.com/nguaman/licitpy/commit/e3e3140a9e685cdf238cb3575dea8a2f225cf43c))
+
+
 ## v0.6.1 (2024-12-10)
 
 ### Bug Fixes
@@ -9,6 +22,9 @@
   ([`78c70c2`](https://github.com/nguaman/licitpy/commit/78c70c2abb7a713b0634841f16f25bfe503222fe))
 
 ### Continuous Integration
+
+- Add Trusted Publisher Management (Pypi)
+  ([`74530e2`](https://github.com/nguaman/licitpy/commit/74530e227b40f44db48b84cd81e288a1cead5b10))
 
 - Remove topics
   ([`b6461f4`](https://github.com/nguaman/licitpy/commit/b6461f49e70d2a1719da8a7be08f8fb7f2f7168a))
