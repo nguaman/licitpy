@@ -11,7 +11,7 @@ from licitpy.types.attachments import Attachment
 from licitpy.types.geography import Region
 from licitpy.types.tender.open_contract import OpenContract
 from licitpy.types.tender.status import Status
-from licitpy.types.tender.tender import Question, Tier
+from licitpy.types.tender.tender import Item, Question, Tier
 from licitpy.utils.validators import is_valid_public_market_code
 
 
@@ -157,6 +157,10 @@ class Tender:
         if self._questions is None:
             self._questions = self.services.get_questions(self.questions_url)
         return self._questions
+
+    @property
+    def items(self) -> List[Item]:
+        return self.services.get_items(self.html)
 
     @classmethod
     def from_data(

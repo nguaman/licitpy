@@ -29,6 +29,7 @@ class FileType(Enum):
     RTF = "rtf"
     RAR = "rar"
 
+
 class Attachment(BaseModel):
     id: str
     name: str

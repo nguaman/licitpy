@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -9,7 +10,7 @@ from licitpy.parsers.base import ElementNotFoundException
 from licitpy.parsers.tender import TenderParser
 from licitpy.types.tender.open_contract import OpenContract
 from licitpy.types.tender.status import StatusFromImage, StatusFromOpenContract
-from licitpy.types.tender.tender import Region, Tier
+from licitpy.types.tender.tender import Item, Region, Tier, Unit
 
 
 @pytest.fixture
@@ -412,3 +413,136 @@ def test_get_table_attachments_rows_no_rows(tender_parser: TenderParser) -> None
     # Call the function and expect an exception
     with pytest.raises(ValueError, match="No rows found in the table"):
         tender_parser._get_table_attachments_rows(table)
+
+
+@pytest.fixture
+def html_items_sample() -> str:
+    return """
+        <div id="grvProducto_ctl02_lblNumero">1</div>
+        <div id="grvProducto_ctl02_lblProducto">Tubos de ensayo multipropósito o generales</div>
+        <div id="grvProducto_ctl02_lblCategoria">41121701</div>
+        <div id="grvProducto_ctl02_lblDescripcion">PLUS HEMO LILA EDTA 3 ML</div>
+        <div id="grvProducto_ctl02_lblCantidad">445000</div>
+        <div id="grvProducto_ctl02_lblUnidad">Tubo</div>
+    """
+
+
+def test_get_item_from_code_success(
+    tender_parser: TenderParser, html_items_sample: str
+) -> None:
+    result = tender_parser.get_item_from_code(html_items_sample, "02")
+
+    expected_item = Item(
+        index=1,
+        title="Tubos de ensayo multipropósito o generales",
+        category=41121701,
+        description="PLUS HEMO LILA EDTA 3 ML",
+        quantity=445000,
+        unit=Unit.TUBE,
+    )
+
+    assert result == expected_item, f"Expected {expected_item}, got {result}"
+
+
+def test_get_item_from_code_invalid_code(
+    tender_parser: TenderParser, html_items_sample: str
+) -> None:
+
+    with pytest.raises(
+        ElementNotFoundException,
+        match="Element with ID 'grvProducto_ctl99_lblNumero' not found",
+    ):
+        tender_parser.get_item_from_code(html_items_sample, "99")
+
+
+def test_get_item_from_code_partial_data(
+    tender_parser: TenderParser, html_items_sample: str
+) -> None:
+
+    # Remove the "Cantidad" field dynamically from the fixture
+    incomplete_html = html_items_sample.replace(
+        '<div id="grvProducto_ctl02_lblCantidad">445000</div>', ""
+    )
+
+    with pytest.raises(
+        ElementNotFoundException,
+        match="Element with ID 'grvProducto_ctl02_lblCantidad' not found",
+    ):
+        tender_parser.get_item_from_code(incomplete_html, "02")
+
+
+def test_get_item_codes_from_html_success(tender_parser: TenderParser) -> None:
+
+    html = """
+    <html>
+        <div id="grvProducto_ctl02_lblNumero"></div>
+        <div id="grvProducto_ctl03_lblNumero"></div>
+        <div id="grvProducto_ctl04_lblNumero"></div>
+        <div id="grvProducto_ctl05_lblNumero"></div>
+        <div id="grvProducto_ctl06_lblNumero"></div>
+        <div id="grvProducto_ctl07_lblNumero"></div>
+        <div id="grvProducto_ctl08_lblNumero"></div>
+    </html>
+    """
+    result = tender_parser.get_item_codes_from_html(html)
+    expected_codes = ["02", "03", "04", "05", "06", "07", "08"]
+
+    assert result == expected_codes, f"Expected {expected_codes}, got {result}"
+
+
+def test_get_item_codes_from_html_no_matches(tender_parser: TenderParser) -> None:
+    """
+    Test that `get_item_codes_from_html` returns an empty list when no matches are found.
+    """
+    html = """
+    <html>
+        <div id="grvProducto_lblNumero"></div>
+        <div id="grvProducto_ctl_lblNumero"></div>
+    </html>
+    """
+    result = tender_parser.get_item_codes_from_html(html)
+    expected_codes: List[str] = []
+
+    assert result == expected_codes, f"Expected {expected_codes}, got {result}"
+
+
+def test_parse_size_attachment_success(tender_parser: TenderParser) -> None:
+    """
+    Test that `_parse_size_attachment` correctly parses valid size values.
+    """
+    html = "<td><span>1024 Kb</span></td>"
+    td_element = tender_parser.get_html_element(html)
+    result = tender_parser._parse_size_attachment(td_element)
+    expected_size = 1024 * 1024  # 1 MB in bytes
+    assert result == expected_size, f"Expected {expected_size}, got {result}"
+
+
+def test_parse_size_attachment_invalid_format(tender_parser: TenderParser) -> None:
+    """
+    Test that `_parse_size_attachment` raises a ValueError for invalid size formats.
+    """
+    html = "<td><span>invalid_size</span></td>"
+    td_element = tender_parser.get_html_element(html)
+    with pytest.raises(ValueError, match="Invalid size format: invalid_size"):
+        tender_parser._parse_size_attachment(td_element)
+
+
+def test_parse_size_attachment_missing_size(tender_parser: TenderParser) -> None:
+    """
+    Test that `_parse_size_attachment` raises an IndexError when size text is missing.
+    """
+    html = "<td></td>"
+    td_element = tender_parser.get_html_element(html)
+    with pytest.raises(IndexError, match="list index out of range"):
+        tender_parser._parse_size_attachment(td_element)
+
+
+def test_extract_attachment_id_no_input_id(tender_parser: TenderParser) -> None:
+    """
+    Test that `_extract_attachment_id` raises a ValueError when no input ID is found.
+    """
+    html = "<td></td>"  # No input element present
+    td_element = tender_parser.get_html_element(html)
+
+    with pytest.raises(ValueError, match="No input ID found in the first column"):
+        tender_parser._extract_attachment_id(td_element)

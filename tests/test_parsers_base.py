@@ -134,9 +134,7 @@ def test_get_html_element_empty(base_parser: BaseParser) -> None:
 
 def test_get_html_element_malformed(base_parser: BaseParser) -> None:
     """Test that get_html_element raises an exception when None is passed."""
-    with pytest.raises(
-        TypeError, match="expected string or bytes-like object"
-    ):
+    with pytest.raises(TypeError, match="expected string or bytes-like object"):
         base_parser.get_html_element(None)  # type: ignore[arg-type]
 
 

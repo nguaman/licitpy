@@ -13,7 +13,7 @@ from licitpy.types.tender.status import Status
 
 @pytest.fixture
 def sample_tenders() -> List[Tender]:
-    """ Returns a list of sample tenders """
+    """Returns a list of sample tenders"""
     return [
         Tender(
             code="3955-54-LE24",
@@ -51,7 +51,7 @@ def sample_tenders() -> List[Tender]:
 
 
 def test_licitpy_initialization_with_api_key() -> None:
-    """ Test the initialization of the Licitpy client with an API key """
+    """Test the initialization of the Licitpy client with an API key"""
     api_key = "licitpy-"
     licitpy = Licitpy(api_key=api_key)
 
@@ -60,14 +60,14 @@ def test_licitpy_initialization_with_api_key() -> None:
 
 
 def test_licitpy_initialization_without_api_key() -> None:
-    """ Test the initialization of the Licitpy client without an API key """
+    """Test the initialization of the Licitpy client without an API key"""
     licitpy = Licitpy()
 
     assert isinstance(licitpy.source, Local)
 
 
 def test_licitpy_tenders_client() -> None:
-    """ Test the initialization of the tenders client """
+    """Test the initialization of the tenders client"""
     api_key = "licitpy-"
     licitpy = Licitpy(api_key=api_key)
 
@@ -78,7 +78,7 @@ def test_licitpy_tenders_client() -> None:
 
 
 def test_licitpy_purchase_orders_client() -> None:
-    """ Test the initialization of the purchase orders client """
+    """Test the initialization of the purchase orders client"""
     api_key = "licitpy-"
     licitpy = Licitpy(api_key=api_key)
 

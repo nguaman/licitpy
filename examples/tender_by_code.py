@@ -4,7 +4,7 @@ from licitpy import Licitpy
 
 licitpy = Licitpy()
 
-tender = licitpy.tenders.from_code("3494-210-L124")
+tender = licitpy.tenders.from_code("750301-54-L124")
 
 pprint(
     {
@@ -16,3 +16,7 @@ pprint(
         "region": tender.region,
     }
 )
+
+
+print(" Items ".center(80, "="))
+pprint(tender.items)
