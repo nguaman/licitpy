@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.8.1 (2024-12-14)
+
+### Bug Fixes
+
+- Fix of the tag in GitHub Actions publish.yml to trigger correctly
+  ([`2d5a1b2`](https://github.com/nguaman/licitpy/commit/2d5a1b253dd064b2ef646d7b4b41df4e55bbc5af))
+
+
 ## v0.8.0 (2024-12-14)
 
 ### Features
