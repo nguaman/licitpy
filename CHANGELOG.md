@@ -1,6 +1,15 @@
 # CHANGELOG
 
 
+## v0.8.0 (2024-12-14)
+
+### Features
+
+- All tenders will have a closing date. Improved logic for obtaining tenders based on the OCDS API
+  and CSV. Created the first integration tests
+  ([`40ec62f`](https://github.com/nguaman/licitpy/commit/40ec62f8945171882dabcf2f2709fa6ed92789e5))
+
+
 ## v0.7.0 (2024-12-11)
 
 ### Continuous Integration
