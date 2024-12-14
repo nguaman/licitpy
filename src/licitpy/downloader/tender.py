@@ -19,7 +19,6 @@ from licitpy.types.tender.tender import (
     TenderDataConsolidated,
     TenderFromAPI,
     TenderFromCSV,
-    TenderFromSource,
 )
 
 
@@ -37,6 +36,9 @@ class TenderDownloader(BaseDownloader):
     def get_tenders_codes_from_api(
         self, year: int, month: int, skip: int = 0, limit: int | None = None
     ) -> List[TenderFromAPI]:
+        """
+        Retrieves tender codes from the API for a given year and month.
+        """
 
         # Check if limit is set to 0 or a negative number; if so, return an empty list
         if limit is not None and limit <= 0:
@@ -93,17 +95,11 @@ class TenderDownloader(BaseDownloader):
     def get_tenders_from_csv(
         self, year: int, month: int, limit: int | None = None
     ) -> List[TenderFromCSV]:
+        """
+        Retrieves tenders from the CSV for a given year and month.
+        """
 
-        columns: List[str] = [
-            "CodigoExterno",
-            "FechaPublicacion",
-            # "RegionUnidad",
-            "Estado",
-            # "Nombre",
-            # "Descripcion",
-            # "FechaCierre",
-        ]
-
+        columns: List[str] = ["CodigoExterno", "FechaPublicacion", "Estado"]
         dates_columns = ["FechaPublicacion"]
 
         df: pandas.DataFrame = self.get_massive_csv_from_zip(
@@ -114,21 +110,8 @@ class TenderDownloader(BaseDownloader):
         if any(df.groupby("CodigoExterno")["FechaPublicacion"].nunique() > 1):
             raise ValueError("Inconsistent publication dates found")
 
-        # # The FechaPublicacion comes in a date string format
-        # df["FechaPublicacion"] = df["FechaPublicacion"].dt.date
-
-        # # The FechaCierre comes in a date string format
-        # df["FechaCierre"] = df["FechaCierre"].dt.date
-
-        # Strip leading and trailing whitespace from the 'RegionUnidad' column
-        # df["RegionUnidad"] = df["RegionUnidad"].str.strip()
-
         # Drop duplicate records based on the 'code' column, keeping the first occurrence
         df = df.drop_duplicates(subset="CodigoExterno", keep="first")
-
-        # # Sort the DataFrame by 'opening_date' in ascending order
-        # # The date is in the following format YYYY-MM-DD (ISO 8601)
-        # df = df.sort_values(by="FechaPublicacion", ascending=True)
 
         # Reset the index of the DataFrame after sorting
         df.reset_index(drop=True, inplace=True)
@@ -139,13 +122,7 @@ class TenderDownloader(BaseDownloader):
 
         tenders = [
             TenderFromCSV(
-                # RegionUnidad=tender["RegionUnidad"],
-                # FechaPublicacion=tender["FechaPublicacion"],
-                CodigoExterno=tender["CodigoExterno"],
-                Estado=tender["Estado"],
-                # Nombre=tender["Nombre"],
-                # Descripcion=tender["Descripcion"],
-                # FechaCierre=tender["FechaCierre"],
+                CodigoExterno=tender["CodigoExterno"], Estado=tender["Estado"]
             )
             for tender in df.to_dict(orient="records")
         ]
@@ -154,6 +131,10 @@ class TenderDownloader(BaseDownloader):
 
     @staticmethod
     def is_invalid_contract(contract: Optional[OpenContract]) -> bool:
+        """
+        Checks if the contract is invalid.
+        """
+
         return not contract or not contract.records
 
     @retry(
@@ -162,7 +143,10 @@ class TenderDownloader(BaseDownloader):
         stop=stop_after_attempt(3),
     )
     def get_tender_ocds_data_from_api(self, code: str) -> OpenContract:
-
+        """
+        Retrieves OCDS data for a given tender code from the API.
+        """
+        
         url = f"https://apis.mercadopublico.cl/OCDS/data/record/{code}"
 
         response = self.session.get(url)
@@ -186,7 +170,10 @@ class TenderDownloader(BaseDownloader):
     def get_tender_ocds_data_from_codes(
         self, tenders: List[TenderDataConsolidated]
     ) -> Dict[str, OpenContract]:
-
+        """
+        Retrieves OCDS data for a list of tenders from the API.
+        """
+        
         data_tenders: Dict[str, OpenContract] = {}
 
         with ThreadPoolExecutor(max_workers=32) as executor:
@@ -196,7 +183,6 @@ class TenderDownloader(BaseDownloader):
                 for tender in tenders
             }
 
-            # for future in as_completed(future_to_tender):
             for future in tqdm(
                 as_completed(future_to_tender),
                 total=len(tenders),
@@ -290,6 +276,10 @@ class TenderDownloader(BaseDownloader):
         return HttpUrl(f"{base_url}?qs={query}")
 
     def download_attachment(self, url: HttpUrl, attachment: Attachment) -> str:
+        """
+        Downloads an attachment from a URL using a POST request with the attachment ID.
+        """
+        
         return self.download_attachment_from_url(url, attachment)
 
     def get_tender_questions(self, code: str) -> List[Question]:

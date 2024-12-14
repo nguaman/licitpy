@@ -12,11 +12,16 @@ class PurchaseOrders:
         self._purchase_orders = purchase_orders
 
     def with_status(self, status: Status) -> PurchaseOrders:
+        """
+        Filters the purchase orders by status.
+        """
+
         purchase_orders = [
             purchase_order
             for purchase_order in self._purchase_orders
             if purchase_order.status == status
         ]
+
         return PurchaseOrders(purchase_orders)
 
     @classmethod
@@ -38,23 +43,33 @@ class PurchaseOrders:
             PurchaseOrders: An instance of `PurchaseOrders` containing a list of `PurchaseOrder`
             entities created from the provided codes.
         """
+
         return cls([PurchaseOrder(code) for code in codes])
 
-    @classmethod
-    def from_purchase_orders(
-        cls, purchase_orders: List[PurchaseOrder]
-    ) -> PurchaseOrders:
-
-        return cls(purchase_orders)
-
     def limit(self, limit: int) -> PurchaseOrders:
+        """
+        Limits the number of purchase orders.
+        """
+
         return PurchaseOrders(self._purchase_orders[:limit])
 
     def count(self) -> int:
+        """
+        Returns the number of purchase orders.
+        """
+
         return len(self._purchase_orders)
 
     def __iter__(self) -> Iterator[PurchaseOrder]:
+        """
+        Iterates over the purchase orders.
+        """
+
         return iter(self._purchase_orders)
 
     def __getitem__(self, index: int) -> PurchaseOrder:
+        """
+        Gets a purchase order by index.
+        """
+
         return self._purchase_orders[index]

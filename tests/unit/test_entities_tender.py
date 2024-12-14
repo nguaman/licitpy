@@ -268,25 +268,6 @@ def test_ocds_property_initialization(mock_tender_services: TenderServices) -> N
     assert ocds_data_second_access is ocds_data
 
 
-def test_from_data() -> None:
-    """Test the from_data class method."""
-    tender = Tender.from_data(
-        code="2513-2-LE24",
-        region=Region.RM,
-        status=Status.PUBLISHED,
-        title="Test Title",
-        description="Test Description",
-        opening_date=datetime(2024, 11, 1),
-    )
-
-    assert tender.code == "2513-2-LE24"
-    assert tender.region == Region.RM
-    assert tender.status == Status.PUBLISHED
-    assert tender.title == "Test Title"
-    assert tender.description == "Test Description"
-    assert tender.opening_date == datetime(2024, 11, 1)
-
-
 def test_tender_default_services() -> None:
     """Test default initialization of services."""
     tender = Tender(code="2513-2-LE24")

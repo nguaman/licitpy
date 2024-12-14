@@ -115,7 +115,7 @@ class Local(BaseSource):
                 year, month
             )
 
-        return PurchaseOrders.from_purchase_orders(
+        return PurchaseOrders(
             [
                 PurchaseOrder(
                     purchase_order.Codigo,

@@ -42,17 +42,18 @@ class Tender:
         self._title: Optional[str] = title
         self._description: Optional[str] = description
 
-        self._ocds: Optional[OpenContract] = None
         self._opening_date: Optional[datetime] = opening_date
         self._closing_date: Optional[datetime] = closing_date
 
         self._tier: Optional[Tier] = None
-        self._attachment_url: Optional[HttpUrl] = None
-        self._attachments: Optional[List[Attachment]] = None
-        self._signed_base: Optional[Attachment] = None
-        self._purchase_orders: Optional[PurchaseOrders] = None
+        self._ocds: Optional[OpenContract] = None
         self._questions_url: Optional[HttpUrl] = None
+        self._attachment_url: Optional[HttpUrl] = None
+        self._signed_base: Optional[Attachment] = None
         self._questions: Optional[List[Question]] = None
+        self._attachments: Optional[List[Attachment]] = None
+        self._purchase_orders: Optional[PurchaseOrders] = None
+
         self.services = services or TenderServices()
 
     @property
@@ -163,25 +164,3 @@ class Tender:
     @property
     def items(self) -> List[Item]:
         return self.services.get_items(self.html)
-
-    @classmethod
-    def from_data(
-        cls,
-        code: str,
-        *,
-        region: Optional[Region] = None,
-        status: Optional[Status] = None,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        opening_date: Optional[datetime] = None,
-        services: Optional[TenderServices] = None,
-    ) -> Tender:
-        return cls(
-            code,
-            region=region,
-            status=status,
-            title=title,
-            description=description,
-            opening_date=opening_date,
-            services=services,
-        )

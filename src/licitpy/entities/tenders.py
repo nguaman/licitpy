@@ -30,10 +30,6 @@ class Tenders:
     def to_pandas(self) -> pandas.DataFrame:
         raise NotImplementedError
 
-    # @classmethod
-    # def from_tenders(cls, tenders: List[Tender]) -> Tenders:
-    #     return cls(tenders)
-
     @property
     def codes(self) -> List[str]:
         return [tender.code for tender in self._tenders]

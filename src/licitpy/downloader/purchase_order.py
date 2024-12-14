@@ -13,7 +13,10 @@ class PurchaseOrderDownloader(BaseDownloader):
     def get_purchase_orders_from_csv(
         self, year: int, month: int, limit: int | None = None
     ) -> List[PurchaseOrderFromCSV]:
-
+        """
+        Gets a list of purchase orders from a given year and month.
+        """
+        
         # Note about the commune:
         # In the CSV file, the commune is linked to the column "CiudadUnidadCompra" (AO).
         # Example in CSV format:
@@ -109,5 +112,9 @@ class PurchaseOrderDownloader(BaseDownloader):
         return purchase_orders[:limit]
 
     def get_purchase_orders(self, year: int, month: int) -> List[PurchaseOrderFromCSV]:
+        """
+        Gets a list of purchase orders from a given year and month.
+        """
         purchase_orders = self.get_purchase_orders_from_csv(year, month)
+        
         return sorted(purchase_orders, key=lambda po: po.FechaEnvio, reverse=True)

@@ -111,6 +111,9 @@ class BaseDownloader:
         return base64_content
 
     def download_attachment_from_url(self, url: HttpUrl, attachment: Attachment) -> str:
+        """
+        Downloads an attachment from a URL using a POST request with the attachment ID.
+        """
 
         file_code = attachment.id
         file_size = attachment.size
@@ -150,6 +153,9 @@ class BaseDownloader:
         date_columns: List[str],
         source: MassiveDownloadSource,
     ) -> pandas.DataFrame:
+        """
+        Downloads a massive CSV file from a ZIP file containing the data for a given year and month.
+        """
 
         file_name = f"{year}-{month:01}.zip"
 

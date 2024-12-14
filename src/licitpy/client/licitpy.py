@@ -37,8 +37,16 @@ class Licitpy:
 
     @property
     def tenders(self) -> TendersClient:
+        """
+        Access to the tenders client.
+        """
+
         return TendersClient(self.source)
 
     @property
     def purchase_orders(self) -> PurchaseOrdersClient:
+        """
+        Access to the purchase orders client.
+        """
+
         return PurchaseOrdersClient(self.source)

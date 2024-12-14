@@ -18,10 +18,17 @@ class PurchaseOrdersClient:
         end_date: str | date | None = None,
         time_range: TimeRange = TimeRange.THIS_MONTH,
     ) -> PurchaseOrders:
-
+        """
+        Retrieves purchase orders from a specific date range.
+        """
+        
         start_date, end_date = determine_date_range(start_date, end_date, time_range)
 
         return self.source.get_monthly_purchase_orders(start_date, end_date)
 
     def from_code(self, code: str) -> PurchaseOrder:
+        """
+        Retrieves a purchase order by its code.
+        """
+        
         return self.source.get_purchase_order(code)

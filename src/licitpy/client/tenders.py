@@ -18,10 +18,17 @@ class TendersClient:
         end_date: str | date | None = None,
         time_range: TimeRange = TimeRange.THIS_MONTH,
     ) -> Tenders:
-
+        """
+        Retrieves tenders from a specific date range.
+        """
+        
         start_date, end_date = determine_date_range(start_date, end_date, time_range)
 
         return self.source.get_monthly_tenders(start_date, end_date)
 
     def from_code(self, code: str) -> Tender:
+        """
+        Retrieves a tender by its code.
+        """
+
         return self.source.get_tender(code)
