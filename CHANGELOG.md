@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.8.3 (2024-12-14)
+
+### Bug Fixes
+
+- Minor fixex - github action
+  ([`b2f3f51`](https://github.com/nguaman/licitpy/commit/b2f3f51afb92775fb200f782ea4da68d6dd3c730))
+
+
 ## v0.8.2 (2024-12-14)
 
 ### Bug Fixes
