@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.8.2 (2024-12-14)
+
+### Bug Fixes
+
+- Minor fixes and first notebook
+  ([`c0a0d38`](https://github.com/nguaman/licitpy/commit/c0a0d3825af73d96432b94f4ebdd36958ef9b7ce))
+
+### Continuous Integration
+
+- Add branch filter for 'main' in publish workflow
+  ([`8a68561`](https://github.com/nguaman/licitpy/commit/8a68561e680856c117b4629acdd7dc30af22788a))
+
+
 ## v0.8.1 (2024-12-14)
 
 ### Bug Fixes
