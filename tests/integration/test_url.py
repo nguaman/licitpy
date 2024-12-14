@@ -13,6 +13,7 @@ def test_url_status() -> None:
         response.status_code == 200
     ), f"Expected status 200, got {response.status_code}"
 
+
 @pytest.mark.integration
 def test_url_api_ocds() -> None:
     """

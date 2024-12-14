@@ -1,5 +1,6 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
+
 import pytest
 import requests
 
@@ -76,7 +77,7 @@ def test_closing_date_from_ocds(
 def test_closing_date_with_eligibility_closing_date(
     tender_parser: TenderParser, tender_url_with_eligibility_closing_date: str
 ) -> None:
-    
+
     response = requests.get(tender_url_with_eligibility_closing_date)
 
     assert (
