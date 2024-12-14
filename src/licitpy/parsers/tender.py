@@ -24,15 +24,61 @@ class TenderParser(BaseParser):
         # - 2024-11-06T11:40:34Z -> 2024-11-06 11:40:34-03:00
 
         tender = data.records[0].compiledRelease.tender
+
+        # "startDate": "2024-10-25T15:31:00Z",
         start_date = tender.tenderPeriod.startDate
 
         return datetime.strptime(start_date, "%Y-%m-%dT%H:%M:%SZ").replace(
             tzinfo=ZoneInfo("America/Santiago")
         )
 
-    def get_closing_date_from_tender_ocds_data(self, data: OpenContract) -> datetime:
+    def get_closing_date_from_eligibility(self, html: str) -> datetime:
+        # Extract the closing date for the eligibility phase (idoneidad técnica).
+        # This date marks the final deadline for all participants to submit their initial technical eligibility documents.
+        # After this point, only participants who meet the technical requirements can proceed.
+
+        # Example date format from the HTML: "16-12-2024 12:00:00"
+        closing_date = self.get_text_by_element_id(html, "lblFicha3CierreIdoneidad")
+
+        # Parse the extracted date string into a datetime object, ensuring the correct format and time zone.
+        return datetime.strptime(closing_date, "%d-%m-%Y %H:%M:%S").replace(
+            tzinfo=ZoneInfo(
+                "America/Santiago"
+            )  # Set the time zone to Chile's local time.
+        )
+
+    def get_closing_date_from_html(self, html: str) -> datetime:
+        # Check if the eligibility closing date (idoneidad técnica) exists in the HTML.
+        # If lblFicha3CierreIdoneidad exists, it indicates that the process includes an eligibility phase.
+        # In such cases, the usual closing date element (lblFicha3Cierre) contains a string like
+        # "10 días a partir de la notificación 12:00" instead of a concrete date.
+        if self.has_element_id(html, "lblFicha3CierreIdoneidad"):
+            # Extract and return the eligibility closing date as the definitive closing date.
+            # The eligibility phase defines the last moment when anyone can participate.
+            return self.get_closing_date_from_eligibility(html)
+
+        # If lblFicha3CierreIdoneidad does not exist, assume lblFicha3Cierre contains a concrete closing date.
+        # Example: "11-11-2024 15:00:00"
+        closing_date = self.get_text_by_element_id(html, "lblFicha3Cierre")
+
+        # Parse the extracted date string into a datetime object, ensuring the correct format and time zone.
+        return datetime.strptime(closing_date, "%d-%m-%Y %H:%M:%S").replace(
+            tzinfo=ZoneInfo(
+                "America/Santiago"
+            )  # Set the time zone to Chile's local time.
+        )
+
+    def get_closing_date_from_tender_ocds_data(
+        self, data: OpenContract
+    ) -> datetime | None:
+
         tender = data.records[0].compiledRelease.tender
+
+        # "endDate": "2024-10-25T15:30:00Z",
         end_date = tender.tenderPeriod.endDate
+
+        if end_date is None:
+            return None
 
         return datetime.strptime(end_date, "%Y-%m-%dT%H:%M:%SZ").replace(
             tzinfo=ZoneInfo("America/Santiago")
@@ -77,9 +123,9 @@ class TenderParser(BaseParser):
     def get_tender_tier(self, code: str) -> Tier:
         return Tier(code.split("-")[-1:][0][:2])
 
-    def get_tender_status_from_image(self, html: str) -> StatusFromImage:
+    def get_tender_status_from_html(self, html: str) -> StatusFromImage:
         status = self.get_src_by_element_id(html, "imgEstado")
-        return StatusFromImage(status.split("/")[-1].replace(".png", "").upper())
+        return StatusFromImage(status.split("/")[-1].replace(".png", ""))
 
     def get_tender_code_from_tender_ocds_data(self, data: OpenContract) -> str:
         return str(data.uri).split("/")[-1].strip()

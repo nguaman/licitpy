@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import datetime
 from enum import Enum
 
 from pydantic import BaseModel, field_validator
@@ -27,25 +27,26 @@ class Tier(Enum):
     R3 = "R3"  # ?
 
 
-class EnrichedTender(BaseModel):
-    title: str
-    description: str
-    region: Region
+class TenderFromSource(BaseModel):
+    code: str
     status: Status
-    opening_date: date
+    region: Region
+    closing_date: datetime
+    opening_date: datetime
 
 
 class TenderFromAPI(BaseModel):
-    CodigoExterno: str
+    code: str
 
 
 class TenderFromCSV(BaseModel):
     CodigoExterno: str
-    RegionUnidad: Region
-    FechaPublicacion: date
     Estado: StatusFromCSV
-    Nombre: str
-    Descripcion: str
+
+
+class TenderDataConsolidated(BaseModel):
+    code: str
+    status: Status | None = None
 
 
 class QuestionAnswer(BaseModel):

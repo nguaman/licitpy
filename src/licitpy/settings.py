@@ -5,7 +5,7 @@ class Settings:
     def __init__(
         self,
         use_cache: bool = True,
-        cache_expire_after: timedelta = timedelta(hours=3),
+        cache_expire_after: timedelta = timedelta(hours=6),
         disable_progress_bar: bool = False,
     ):
 

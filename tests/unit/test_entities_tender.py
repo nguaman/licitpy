@@ -84,7 +84,7 @@ def test_tender_initialization_valid() -> None:
         status=Status.PUBLISHED,
         title="Test Tender",
         description="This is a test tender.",
-        opening_date=date(2024, 11, 1),
+        opening_date=datetime(2024, 11, 1, 0, 0),
     )
 
     assert tender.code == "2513-2-LE24"
@@ -92,7 +92,7 @@ def test_tender_initialization_valid() -> None:
     assert tender.status == Status.PUBLISHED
     assert tender.title == "Test Tender"
     assert tender.description == "This is a test tender."
-    assert tender.opening_date == date(2024, 11, 1)
+    assert tender.opening_date == datetime(2024, 11, 1, 0, 0)
 
 
 def test_tender_initialization_code_empty() -> None:

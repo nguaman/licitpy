@@ -63,53 +63,9 @@ def test_get_tender_codes_from_api(
     result = tender_downloader.get_tenders_codes_from_api(2024, 11)
 
     assert result == [
-        TenderFromAPI(CodigoExterno="1234-56-LQ20"),
-        TenderFromAPI(CodigoExterno="7890-12-LP21"),
+        TenderFromAPI(code="1234-56-LQ20"),
+        TenderFromAPI(code="7890-12-LP21"),
     ]
-
-
-def test_enrich_tender_with_ocds(tender_downloader: TenderDownloader) -> None:
-    mock_data = OpenContract(
-        uri="https://example.com",
-        records=[
-            Record(
-                ocid="ocds-70d2nz-1234-56-LQ20",
-                compiledRelease=CompiledRelease(
-                    ocid="ocds-70d2nz-1234-56-LQ20",
-                    tender=Tender(
-                        id="1234-56-LQ20",
-                        title="Test Title",
-                        description="Test Description",
-                        status="active",
-                        tenderPeriod=Period(
-                            startDate="2024-11-01T00:00:00Z",
-                            endDate="2024-11-10T00:00:00Z",
-                        ),
-                    ),
-                    parties=[
-                        {
-                            "name": "Entity Name",
-                            "id": "CL-12345",
-                            "roles": ["procuringEntity"],
-                            "address": {
-                                "streetAddress": "Street 123",
-                                "region": "Región de Antofagasta ",
-                                "countryName": "Chile",
-                            },
-                        }
-                    ],
-                ),
-            )
-        ],
-    )
-
-    with patch.object(
-        tender_downloader, "get_tender_ocds_data_from_api", return_value=mock_data
-    ):
-        result = tender_downloader.enrich_tender_with_ocds("1234-56-LQ20")
-
-        assert result.title == "Test Title"
-        assert result.description == "Test Description"
 
 
 def test_get_tender_url_from_code(tender_downloader: TenderDownloader) -> None:
@@ -152,20 +108,9 @@ def test_get_tender_codes_from_api_with_limit(
         result = tender_downloader.get_tenders_codes_from_api(2024, 11, limit=3)
 
         expected = [
-            TenderFromAPI(CodigoExterno="1234-56-LQ20"),
-            TenderFromAPI(CodigoExterno="7890-12-LP21"),
-            TenderFromAPI(CodigoExterno="5678-90-LR22"),
+            TenderFromAPI(code="1234-56-LQ20"),
+            TenderFromAPI(code="7890-12-LP21"),
+            TenderFromAPI(code="5678-90-LR22"),
         ]
 
         assert result == expected
-
-
-def test_enrich_tender_with_ocds_invalid_data(
-    tender_downloader: TenderDownloader,
-) -> None:
-    mock_data = OpenContract(uri="https://example.com", records=[])
-
-    with patch.object(
-        tender_downloader, "get_tender_ocds_data_from_api", return_value=mock_data
-    ), pytest.raises(IndexError, match="list index out of range"):
-        tender_downloader.enrich_tender_with_ocds("1234-56-LQ20")

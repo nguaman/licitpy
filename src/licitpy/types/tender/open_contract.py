@@ -9,7 +9,7 @@ from licitpy.types.tender.status import StatusFromOpenContract
 
 class Period(BaseModel):
     startDate: str
-    endDate: str
+    endDate: str | None = None
 
 
 class Tender(BaseModel):

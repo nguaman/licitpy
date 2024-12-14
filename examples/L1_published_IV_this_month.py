@@ -22,5 +22,7 @@ for tender in tenders:
             "code": tender.code,
             "region": tender.region,
             "status": tender.status,
+            "closing_date": tender.closing_date,
+            "opening_date": tender.opening_date,
         }
     )

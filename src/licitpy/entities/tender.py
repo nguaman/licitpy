@@ -24,7 +24,8 @@ class Tender:
         status: Optional[Status] = None,
         title: Optional[str] = None,
         description: Optional[str] = None,
-        opening_date: Optional[date] = None,
+        opening_date: Optional[datetime] = None,
+        closing_date: Optional[datetime] = None,
         services: Optional[TenderServices] = None,
     ):
 
@@ -42,9 +43,10 @@ class Tender:
         self._description: Optional[str] = description
 
         self._ocds: Optional[OpenContract] = None
-        self._opening_date: Optional[date] = opening_date
+        self._opening_date: Optional[datetime] = opening_date
+        self._closing_date: Optional[datetime] = closing_date
+
         self._tier: Optional[Tier] = None
-        self._closing_date: Optional[datetime] = None
         self._attachment_url: Optional[HttpUrl] = None
         self._attachments: Optional[List[Attachment]] = None
         self._signed_base: Optional[Attachment] = None
@@ -73,7 +75,7 @@ class Tender:
         return self._html
 
     @property
-    def opening_date(self) -> date:
+    def opening_date(self) -> datetime:
         if self._opening_date is None:
             self._opening_date = self.services.get_opening_date(self.ocds)
         return self._opening_date
@@ -171,7 +173,7 @@ class Tender:
         status: Optional[Status] = None,
         title: Optional[str] = None,
         description: Optional[str] = None,
-        opening_date: Optional[date] = None,
+        opening_date: Optional[datetime] = None,
         services: Optional[TenderServices] = None,
     ) -> Tender:
         return cls(
