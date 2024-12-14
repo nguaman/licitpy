@@ -2,12 +2,12 @@ from enum import Enum
 
 
 class StatusFromImage(Enum):
-    PUBLISHED = "PUBLICADAS"
-    AWARDED = "ADJUDICADA"
-    CLOSED = "CERRADA"
-    REVOKED = "REVOCADA"
-    UNSUCCESSFUL = "DESIERTA"
-    SUSPENDED = "SUSPENDIDA"
+    PUBLISHED = "publicadas"
+    AWARDED = "adjudicada"
+    CLOSED = "cerrada"
+    REVOKED = "revocada"
+    UNSUCCESSFUL = "desierta"
+    SUSPENDED = "suspendida"
 
 
 class StatusFromCSV(Enum):
@@ -29,6 +29,8 @@ class Status(Enum):
 
 
 class StatusFromOpenContract(Enum):
+    # https://standard.open-contracting.org/1.1/en/schema/codelists/#tender-status
+
     PUBLISHED = "active"
     AWARDED = "complete"
     CLOSED = "closed"

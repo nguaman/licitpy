@@ -122,7 +122,7 @@ def test_get_src_by_element_id_not_found(
 def test_get_src_by_element_id_no_src_attribute(base_parser: BaseParser) -> None:
     """Test that get_src_by_element_id raises an exception when the src attribute is not found."""
     html = "<html><body><img id='test'/></body></html>"
-    with pytest.raises(IndexError):
+    with pytest.raises(ElementNotFoundException):
         base_parser.get_src_by_element_id(html, "test")
 
 

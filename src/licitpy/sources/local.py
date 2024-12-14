@@ -1,7 +1,9 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
 from typing import List, Optional, Tuple
 
 from dateutil.relativedelta import relativedelta
+from tqdm import tqdm
 
 from licitpy.entities.purchase_order import PurchaseOrder
 from licitpy.entities.purchase_orders import PurchaseOrders
@@ -11,8 +13,7 @@ from licitpy.services.purchase_order import PurchaseOrderServices
 from licitpy.services.tender import TenderServices
 from licitpy.sources.base import BaseSource
 from licitpy.types.purchase_order import PurchaseOrderFromCSV
-from licitpy.types.tender.status import Status as TenderStatus
-from licitpy.types.tender.tender import TenderFromCSV
+from licitpy.types.tender.tender import TenderFromSource
 
 
 class Local(BaseSource):
@@ -23,6 +24,7 @@ class Local(BaseSource):
     ) -> None:
 
         self.tender_services = tender_services or TenderServices()
+
         self.purchase_order_services = (
             purchase_order_services or PurchaseOrderServices()
         )
@@ -34,58 +36,61 @@ class Local(BaseSource):
         current_date = start_date
         while current_date <= end_date:
 
+            # [(2024, 12)]
             year_month.append((current_date.year, current_date.month))
             current_date += relativedelta(months=1)
 
-        tenders: List[TenderFromCSV] = []
+        # The get_tenders service obtains information from both the API (OCDS) and the CSV (Massive Download).
+        tenders_from_source: List[TenderFromSource] = []
 
+        # We retrieve tenders from both sources (API and CSV) for the requested date ranges
         for year, month in year_month:
-            tenders += self.tender_services.get_tenders(year, month)
+            tenders_from_source += self.tender_services.get_tenders_from_sources(
+                year, month
+            )
 
-        # Explanation regarding the tender status:
-        # Tenders can have their status sourced from three different data origins:
-        # 1. The Mercado Publico API
-        # 2. A CSV file from Mercado Publico
-        # 3. The HTML content of the tender page
-        #
-        # Each data source uses a different format to represent the tender status:
-        # - In the CSV, a published tender is labeled as "Publicada".
-        # - In the HTML, a published tender is labeled as "Publicadas" (with an additional "s").
-        # - In the API, a published tender is represented as "active".
-        #
-        # To address these differences, we created two Enum classes to map and standardize the tender status:
-        # 1. `StatusFromCSV`: Represents the status as it appears in the CSV file (e.g., "Publicada").
-        # 2. `Status` (or `TenderStatus`): Represents the unified status format used internally across the application (e.g., "PUBLISHED").
-        #
-        # The transition from `StatusFromCSV` to `Status` ensures consistency:
-        # - `StatusFromCSV` captures the raw status from the CSV, using the same value as in the source.
-        # - `Status` standardizes these values into a common format, such as "PUBLISHED", that is used internally.
-        #
-        # The mapping works as follows:
-        # - `tender.Estado.name` retrieves the raw status (e.g., "Publicada") from the CSV.
-        # - This raw status is converted to the corresponding standardized value in `Status` (e.g., "PUBLISHED").
-        #
-        # Example:
-        # - `StatusFromCSV.PUBLISHED` maps the CSV value "Publicada".
-        # - `Status.PUBLISHED` is the standardized internal representation used in the application.
-        #
-        # This approach ensures that regardless of the data source, all tender statuses are consistent and uniform.
+        # We retrieve only the tenders that fall within the requested date range
+        tenders_within_dates: List[TenderFromSource] = [
+            tender_from_source
+            for tender_from_source in tenders_from_source
+            if start_date <= tender_from_source.opening_date.date() <= end_date
+        ]
 
-        return Tenders.from_tenders(
-            [
-                Tender(
-                    tender.CodigoExterno,
-                    region=tender.RegionUnidad,
-                    status=TenderStatus(tender.Estado.name),
-                    title=tender.Nombre,
-                    description=tender.Descripcion,
-                    opening_date=tender.FechaPublicacion,
-                    services=self.tender_services,
+        tenders: List[Tender] = []
+
+        with ThreadPoolExecutor(max_workers=16) as executor:
+
+            futures_to_tender = {
+                executor.submit(
+                    self.tender_services.verify_status,
+                    tender.status,
+                    tender.closing_date,
+                    tender.code,
+                ): tender
+                for tender in tenders_within_dates
+            }
+
+            for future in tqdm(
+                as_completed(futures_to_tender),
+                total=len(tenders_within_dates),
+                desc="Verifying tender status",
+            ):
+
+                tender = futures_to_tender[future]
+                verified_status = future.result()
+
+                tenders.append(
+                    Tender(
+                        tender.code,
+                        region=tender.region,
+                        status=verified_status,
+                        closing_date=tender.closing_date,
+                        opening_date=tender.opening_date,
+                        services=self.tender_services,
+                    )
                 )
-                for tender in tenders
-                if start_date <= tender.FechaPublicacion <= end_date
-            ]
-        )
+
+        return Tenders(tenders)
 
     def get_tender(self, code: str) -> Tender:
         return Tender(code)

@@ -92,6 +92,9 @@ prerelease_token = "alpha"
 
 [tool.pytest.ini_options]
 addopts = "--cov=src/licitpy --cov-config=.coveragerc --cov-report=term-missing --cov-fail-under=80"
+markers = ["integration: Tests that interact with live external systems"]
+
+
 pythonpath = ["src"]
 
 [tool.mypy]

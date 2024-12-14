@@ -43,6 +43,12 @@ class BaseParser:
             raise ElementNotFoundException(f"Element with ID '{element_id}' not found")
 
         attribute_elements = html_element[0].xpath(f".//{attribute}")
+
+        if not attribute_elements:
+            raise ElementNotFoundException(
+                f"Element with ID '{element_id}' has no attribute '{attribute}'"
+            )
+
         value: str = attribute_elements[0]
 
         return value.strip()

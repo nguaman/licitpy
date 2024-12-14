@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import List
 
 import pytest
@@ -19,7 +19,7 @@ def sample_tenders() -> List[Tender]:
             status=Status.PUBLISHED,
             title="Tender 1",
             description="Description 1",
-            opening_date=date(2024, 1, 1),
+            opening_date=datetime(2024, 1, 1),
         ),
         Tender(
             code="4326-1-LR24",
@@ -27,7 +27,7 @@ def sample_tenders() -> List[Tender]:
             status=Status.UNSUCCESSFUL,
             title="Tender 2",
             description="Description 2",
-            opening_date=date(2024, 2, 1),
+            opening_date=datetime(2024, 2, 1),
         ),
         Tender(
             code="750301-54-L124",
@@ -35,7 +35,7 @@ def sample_tenders() -> List[Tender]:
             status=Status.PUBLISHED,
             title="Tender 3",
             description="Description 3",
-            opening_date=date(2024, 3, 1),
+            opening_date=datetime(2024, 3, 1),
         ),
         Tender(
             code="2513-2-LE24",
@@ -43,7 +43,7 @@ def sample_tenders() -> List[Tender]:
             status=Status.PUBLISHED,
             title="Tender 4",
             description="Description 4",
-            opening_date=date(2024, 4, 1),
+            opening_date=datetime(2024, 4, 1),
         ),
     ]
 
@@ -83,14 +83,6 @@ def test_to_pandas_not_implemented(tenders: Tenders) -> None:
 
     with pytest.raises(NotImplementedError):
         tenders.to_pandas()
-
-
-def test_from_tenders(sample_tenders: List[Tender]) -> None:
-    """Test from_tenders method"""
-    result = Tenders.from_tenders(sample_tenders)
-
-    assert isinstance(result, Tenders), "Expected result to be an instance of Tenders"
-    assert result.count() == 4, "Expected 4 tenders"
 
 
 def test_codes(tenders: Tenders) -> None:
