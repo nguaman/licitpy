@@ -79,6 +79,10 @@ def convert_to_datetime(
 
 
 def _time_range(time_range: TimeRange) -> Tuple[date, date]:
+    """
+    Get the date range for the given time range.
+    """
+
     today = date.today()
     yesterday = today - timedelta(days=1)
     beginning_of_month = today.replace(day=1)
@@ -96,10 +100,16 @@ def _time_range(time_range: TimeRange) -> Tuple[date, date]:
 def determine_date_range(
     start_date: Union[str, date, None] = None,
     end_date: Union[str, date, None] = None,
-    time_range: TimeRange = TimeRange.THIS_MONTH,
+    time_range: TimeRange | None = TimeRange.THIS_MONTH,
 ) -> Tuple[date, date]:
+    """
+    Determine the date range based on the given start date, end date, or time range.
+    """
 
-    if start_date is not None and end_date is not None:
+    if time_range is not None and start_date is None and end_date is None:
+        return _time_range(time_range)
+
+    if start_date is not None and end_date is not None and time_range is None:
 
         start_date = convert_to_date(start_date)
         end_date = convert_to_date(end_date)
@@ -109,4 +119,5 @@ def determine_date_range(
 
         return start_date, end_date
 
-    return _time_range(time_range)
+    raise ValueError("Either a time range or both start and end dates must be provided")
+
