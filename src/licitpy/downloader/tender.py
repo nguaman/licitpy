@@ -146,7 +146,7 @@ class TenderDownloader(BaseDownloader):
         """
         Retrieves OCDS data for a given tender code from the API.
         """
-        
+
         url = f"https://apis.mercadopublico.cl/OCDS/data/record/{code}"
 
         response = self.session.get(url)
@@ -173,7 +173,7 @@ class TenderDownloader(BaseDownloader):
         """
         Retrieves OCDS data for a list of tenders from the API.
         """
-        
+
         data_tenders: Dict[str, OpenContract] = {}
 
         with ThreadPoolExecutor(max_workers=32) as executor:
@@ -279,7 +279,7 @@ class TenderDownloader(BaseDownloader):
         """
         Downloads an attachment from a URL using a POST request with the attachment ID.
         """
-        
+
         return self.download_attachment_from_url(url, attachment)
 
     def get_tender_questions(self, code: str) -> List[Question]:

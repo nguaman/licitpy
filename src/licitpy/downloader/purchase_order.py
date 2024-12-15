@@ -16,7 +16,7 @@ class PurchaseOrderDownloader(BaseDownloader):
         """
         Gets a list of purchase orders from a given year and month.
         """
-        
+
         # Note about the commune:
         # In the CSV file, the commune is linked to the column "CiudadUnidadCompra" (AO).
         # Example in CSV format:
@@ -116,5 +116,5 @@ class PurchaseOrderDownloader(BaseDownloader):
         Gets a list of purchase orders from a given year and month.
         """
         purchase_orders = self.get_purchase_orders_from_csv(year, month)
-        
+
         return sorted(purchase_orders, key=lambda po: po.FechaEnvio, reverse=True)

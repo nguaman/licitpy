@@ -21,7 +21,7 @@ class TendersClient:
         """
         Retrieves tenders from a specific date range.
         """
-        
+
         start_date, end_date = determine_date_range(start_date, end_date, time_range)
 
         return self.source.get_monthly_tenders(start_date, end_date)
