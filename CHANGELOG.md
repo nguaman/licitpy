@@ -1,12 +1,31 @@
 # CHANGELOG
 
 
+## v0.8.4 (2024-12-15)
+
+### Bug Fixes
+
+- Additional tests, integration with isort and black, and testing triggers on the publish GitHub
+  Action
+  ([`349398f`](https://github.com/nguaman/licitpy/commit/349398f769996ab0e6e4977f0b7e2d39bee3ef56))
+
+### Continuous Integration
+
+- Add skip-existing: true to avoid conflicts if the version already exists
+  ([`7c5e5a2`](https://github.com/nguaman/licitpy/commit/7c5e5a29660c20c031a98763112169bf7b8dade3))
+
+
 ## v0.8.3 (2024-12-14)
 
 ### Bug Fixes
 
 - Minor fixex - github action
   ([`b2f3f51`](https://github.com/nguaman/licitpy/commit/b2f3f51afb92775fb200f782ea4da68d6dd3c730))
+
+### Documentation
+
+- Adding basic comments
+  ([`79d7b20`](https://github.com/nguaman/licitpy/commit/79d7b20530e69c01ea955acd72e48f3130b0414d))
 
 
 ## v0.8.2 (2024-12-14)
