@@ -252,7 +252,9 @@ class TenderParser(BaseParser):
             attachment_id: str = self._extract_attachment_id(td[0])
             name = self._extract_content_from_attachment_row(td[1])
             attachment_type = self._extract_content_from_attachment_row(td[2])
+
             description = self._extract_content_from_attachment_row(td[3])
+
             size: int = self._parse_size_attachment(td[4])
             upload_date = self._extract_content_from_attachment_row(td[5])
 
@@ -260,7 +262,7 @@ class TenderParser(BaseParser):
                 raise ValueError("Attachment name not found")
 
             # Bases_686617-1-L124.pdf
-            file_type = FileType(name.split(".")[-1])
+            file_type = FileType(name.split(".")[-1].lower().strip())
 
             attachment = Attachment(
                 **{
@@ -407,3 +409,13 @@ class TenderParser(BaseParser):
             quantity=int(quantity),
             unit=Unit(unit),
         )
+
+    def has_signed_base(self, html: str) -> bool:
+        """
+        Check if the tender has a signed base document.
+        """
+
+        if self.has_element_id(html, "descargar_pdf_baseFirmada"):
+            return True
+
+        return False

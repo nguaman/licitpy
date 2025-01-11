@@ -24,17 +24,23 @@ class FileType(Enum):
     DOCX = "docx"
     DOC = "doc"
     ZIP = "zip"
-    KMZ = "kmz"
+    KMZ = "kmz"  # Package geospatial data
     JPG = "jpg"
-    RTF = "rtf"
+    RTF = "rtf"  # Rich Text Format
     RAR = "rar"
+    DWG = "dwg"  # AutoCAD
+    XLS = "xls"
+    PNG = "png"
+    ODT = "odt"  # Open Document Text
+    JPEG = "jpeg"
+    
 
 
 class Attachment(BaseModel):
     id: str
     name: str
     type: str
-    description: str
+    description: str | None
     size: int
     upload_date: str
     file_type: FileType

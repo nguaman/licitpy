@@ -53,6 +53,7 @@ class Tender:
         self._questions: Optional[List[Question]] = None
         self._attachments: Optional[List[Attachment]] = None
         self._purchase_orders: Optional[PurchaseOrders] = None
+        self._has_signed_base: Optional[bool] = None
 
         self.services = services or TenderServices()
 
@@ -134,6 +135,13 @@ class Tender:
                 self.attachment_url
             )
         return self._attachments
+
+    @property
+    def has_signed_base(self) -> bool:
+        if self._has_signed_base is None:
+            self._has_signed_base = self.services.has_signed_base(self.html)
+            
+        return self._has_signed_base
 
     @property
     def signed_base(self) -> Attachment:

@@ -58,6 +58,7 @@ class Local(BaseSource):
 
         tenders: List[Tender] = []
 
+        # We verify the status of the tenders in parallel
         with ThreadPoolExecutor(max_workers=16) as executor:
 
             futures_to_tender = {

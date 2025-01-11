@@ -318,3 +318,10 @@ class TenderServices:
         codes = self.parser.get_item_codes_from_html(html)
 
         return [self.parser.get_item_from_code(html, code) for code in codes]
+
+    def has_signed_base(self, html: str) -> bool:
+        """
+        Check if the tender has a signed base.
+        """
+
+        return self.parser.has_signed_base(html)
