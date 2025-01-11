@@ -7,7 +7,7 @@ licitpy = Licitpy()
 
 
 tenders = (
-    licitpy.tenders.from_date(time_range=TimeRange.TODAY)
+    licitpy.tenders.from_date(time_range=TimeRange.THIS_MONTH)
     .by_budget_tier(Tier.L1)
     .in_region(Region.IV)
     .limit(15)
@@ -15,6 +15,9 @@ tenders = (
 
 
 for tender in tenders:
+
+    print(tender.url)
+
     pprint(
         {
             "url": tender.url,
@@ -23,5 +26,7 @@ for tender in tenders:
             "status": tender.status,
             "opening_date": tender.opening_date,
             "region": tender.region,
+            "subcontracting": tender.subcontracting,
+            "is_renewable": tender.is_renewable,
         }
     )

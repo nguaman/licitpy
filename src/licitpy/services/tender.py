@@ -11,7 +11,15 @@ from licitpy.parsers.tender import TenderParser
 from licitpy.types.attachments import Attachment
 from licitpy.types.tender.open_contract import OpenContract
 from licitpy.types.tender.status import Status
-from licitpy.types.tender.tender import Item, Question, Region, TenderFromSource, Tier
+from licitpy.types.tender.tender import (
+    Item,
+    Question,
+    Region,
+    Renewal,
+    Subcontracting,
+    TenderFromSource,
+    Tier,
+)
 
 
 class TenderServices:
@@ -325,3 +333,17 @@ class TenderServices:
         """
 
         return self.parser.has_signed_base(html)
+
+    def allow_subcontracting(self, html: str) -> Subcontracting:
+        """
+        Check if the tender allows subcontracting.
+        """
+
+        return self.parser.allow_subcontracting(html)
+
+    def is_renewable(self, html: str) -> Renewal:
+        """
+        Check if the tender allows renewal.
+        """
+
+        return self.parser.is_renewable(html)

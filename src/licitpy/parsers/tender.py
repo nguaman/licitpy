@@ -11,7 +11,7 @@ from licitpy.types.attachments import Attachment, FileType
 from licitpy.types.geography import Region
 from licitpy.types.tender.open_contract import OpenContract, PartyRoleEnum
 from licitpy.types.tender.status import StatusFromImage, StatusFromOpenContract
-from licitpy.types.tender.tender import Item, Tier, Unit
+from licitpy.types.tender.tender import Item, Renewal, Tier, Unit, Subcontracting
 
 
 class TenderParser(BaseParser):
@@ -419,3 +419,30 @@ class TenderParser(BaseParser):
             return True
 
         return False
+
+    def allow_subcontracting(self, html: str) -> Subcontracting:
+        """
+        Check if the tender allows subcontracting.
+        """
+
+        # Because the element does not exist, we return None because we do not know if it is allowed or not.
+        if not self.has_element_id(html, "lblFicha7Subcontratacion"):
+            return Subcontracting.UNKNOWN
+
+        # No permite subcontratación
+        # Se permite subcontratación
+        text = self.get_text_by_element_id(html, "lblFicha7Subcontratacion")
+
+        return Subcontracting(text)
+
+    def is_renewable(self, html: str) -> Renewal:
+        """
+        Check if the tender allows renewal.
+        """
+
+        if not self.has_element_id(html, "lblFicha7ContratoRenovacion"):
+            return Renewal.UNKNOWN
+
+        text = self.get_text_by_element_id(html, "lblFicha7ContratoRenovacion")
+
+        return Renewal(text)

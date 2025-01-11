@@ -11,7 +11,7 @@ from licitpy.types.attachments import Attachment
 from licitpy.types.geography import Region
 from licitpy.types.tender.open_contract import OpenContract
 from licitpy.types.tender.status import Status
-from licitpy.types.tender.tender import Item, Question, Tier
+from licitpy.types.tender.tender import Item, Question, Subcontracting, Tier, Renewal
 from licitpy.utils.validators import is_valid_public_market_code
 
 
@@ -54,6 +54,9 @@ class Tender:
         self._attachments: Optional[List[Attachment]] = None
         self._purchase_orders: Optional[PurchaseOrders] = None
         self._has_signed_base: Optional[bool] = None
+        self._items: Optional[List[Item]] = None
+        self._allow_subcontracting: Optional[Subcontracting] = None
+        self._is_renewable: Optional[Renewal] = None
 
         self.services = services or TenderServices()
 
@@ -140,7 +143,7 @@ class Tender:
     def has_signed_base(self) -> bool:
         if self._has_signed_base is None:
             self._has_signed_base = self.services.has_signed_base(self.html)
-            
+
         return self._has_signed_base
 
     @property
@@ -171,4 +174,21 @@ class Tender:
 
     @property
     def items(self) -> List[Item]:
-        return self.services.get_items(self.html)
+        if self._items is None:
+            self._items = self.services.get_items(self.html)
+
+        return self._items
+
+    @property
+    def subcontracting(self) -> Subcontracting:
+        if self._allow_subcontracting is None:
+            self._allow_subcontracting = self.services.allow_subcontracting(self.html)
+
+        return self._allow_subcontracting
+
+    @property
+    def is_renewable(self) -> Renewal:
+        if self.is_renewable is None:
+            self.is_renewable = self.services.is_renewable(self.html)
+
+        return self.is_renewable

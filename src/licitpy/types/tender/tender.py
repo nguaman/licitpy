@@ -112,3 +112,15 @@ class Item(BaseModel):
     description: str
     quantity: int
     unit: Unit
+
+
+class Subcontracting(Enum):
+    NOT_ALLOWED = "No permite subcontratación"
+    ALLOWED = "Se permite subcontratación"
+    UNKNOWN = None
+
+
+class Renewal(Enum):
+    NO = "NO"
+    YES = "SI"
+    UNKNOWN = None
