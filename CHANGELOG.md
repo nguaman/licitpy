@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.9.0 (2025-01-11)
+
+### Features
+
+- We detect when the tender has standardized bases
+  ([`a93e898`](https://github.com/nguaman/licitpy/commit/a93e89822c0b6918560bdec7500e751d7cd1cf60))
+
+
 ## v0.8.4 (2024-12-15)
 
 ### Bug Fixes
@@ -13,6 +21,11 @@
 
 - Add skip-existing: true to avoid conflicts if the version already exists
   ([`7c5e5a2`](https://github.com/nguaman/licitpy/commit/7c5e5a29660c20c031a98763112169bf7b8dade3))
+
+### Testing
+
+- Add more tests
+  ([`c45384a`](https://github.com/nguaman/licitpy/commit/c45384a7ba3da95c3115e4d40b0a7ee19825f680))
 
 
 ## v0.8.3 (2024-12-14)
