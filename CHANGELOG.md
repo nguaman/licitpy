@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.10.0 (2025-01-11)
+
+### Features
+
+- Added whether subcontracting is allowed and whether it is a renewable tender
+  ([`f1873ad`](https://github.com/nguaman/licitpy/commit/f1873ad407559ca64ed952cf9716c260ffff9efd))
+
+
 ## v0.9.0 (2025-01-11)
 
 ### Features
