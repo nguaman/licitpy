@@ -1,5 +1,5 @@
 import base64
-import random
+import secrets
 import tempfile
 import zipfile
 from typing import List
@@ -119,8 +119,8 @@ class BaseDownloader:
         file_size = attachment.size
         file_name = attachment.name
 
-        search_x = str(random.randint(1, 30))
-        search_y = str(random.randint(1, 30))
+        search_x = str(secrets.randbelow(30) + 1)
+        search_y = str(secrets.randbelow(30) + 1)
 
         with disabled():
 
