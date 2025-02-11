@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 from pydantic import HttpUrl
 
 from licitpy.downloader.tender import TenderDownloader
+from licitpy.entities.award import Award
 from licitpy.entities.purchase_orders import PurchaseOrders
 from licitpy.parsers.tender import TenderParser
 from licitpy.types.attachments import Attachment
@@ -347,3 +348,10 @@ class TenderServices:
         """
 
         return self.parser.is_renewable(html)
+
+    def get_tender_award(self, html: str) -> Award:
+        """
+        Get the award from the tender html.
+        """
+
+        return Award(html)

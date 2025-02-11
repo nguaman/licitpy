@@ -33,7 +33,7 @@ keywords = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.12"
+python = ">=3.10,<3.13"
 pydantic = "^2.9.2"
 lxml = "^5.3.0"
 tenacity = "^9.0.0"
@@ -81,20 +81,9 @@ upload_to_release = true
 build_command = "poetry build"
 commit_version_number = true
 
-[tool.semantic_release.branches.main]
-match = "main"
-prerelease = false
-
-[tool.semantic_release.branches.feature]
-match = "feat/.*"
-prerelease = true
-prerelease_token = "alpha"
-
 [tool.pytest.ini_options]
 addopts = "--cov=src/licitpy --cov-config=.coveragerc --cov-report=term-missing --cov-fail-under=80"
 markers = ["integration: Tests that interact with live external systems"]
-
-
 pythonpath = ["src"]
 
 [tool.mypy]

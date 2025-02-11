@@ -5,6 +5,7 @@ from typing import List, Optional
 
 from pydantic import HttpUrl
 
+from licitpy.entities.award import Award
 from licitpy.entities.purchase_orders import PurchaseOrders
 from licitpy.services.tender import TenderServices
 from licitpy.types.attachments import Attachment
@@ -57,6 +58,7 @@ class Tender:
         self._items: Optional[List[Item]] = None
         self._allow_subcontracting: Optional[Subcontracting] = None
         self._is_renewable: Optional[Renewal] = None
+        self._award: Optional[Award] = None
 
         self.services = services or TenderServices()
 
@@ -192,3 +194,9 @@ class Tender:
             self.is_renewable = self.services.is_renewable(self.html)
 
         return self.is_renewable
+
+    @property
+    def award(self) -> Award:
+        if self._award is None:
+            self._award = self.services.get_tender_award(self.html)
+        return self._award

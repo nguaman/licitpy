@@ -446,3 +446,5 @@ class TenderParser(BaseParser):
         text = self.get_text_by_element_id(html, "lblFicha7ContratoRenovacion")
 
         return Renewal(text)
+
+

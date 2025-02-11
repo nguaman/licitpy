@@ -1,10 +1,11 @@
 from pprint import pprint
 
 from licitpy import Licitpy
+from licitpy.types.tender.status import Status
 
 licitpy = Licitpy()
 
-tender = licitpy.tenders.from_code("2446-900-L124")
+tender = licitpy.tenders.from_code("3000-104-LE24")
 
 pprint(
     {
@@ -18,6 +19,20 @@ pprint(
     }
 )
 
-
 print(" Items ".center(80, "="))
 pprint(tender.items)
+
+
+if tender.status is Status.AWARDED:
+    print(" Awarded ".center(80, "="))
+
+    award = tender.award
+
+    pprint(
+        {
+            "method": award.method,
+            "url": award.url,
+            "award_amount": award.award_amount,
+            "estimated_amount": award.estimated_amount,
+        }
+    )
