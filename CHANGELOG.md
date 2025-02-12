@@ -1,12 +1,21 @@
 # CHANGELOG
 
 
+## v0.12.0 (2025-02-12)
+
+
 ## v0.11.0 (2025-02-11)
 
 ### Bug Fixes
 
 - We updated the packages and followed Bandit recommendations
   ([`62cfa56`](https://github.com/nguaman/licitpy/commit/62cfa568dcc661bbe7f3aae8c39293d427bbd58f))
+
+### Features
+
+- We added the ability to download attachments from the awarded tender view using the same code to
+  download the tender attachments
+  ([`61bdb0d`](https://github.com/nguaman/licitpy/commit/61bdb0d9893b926bd4ecb23460ac241d56fb0aec))
 
 
 ## v0.10.0 (2025-01-11)
