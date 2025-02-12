@@ -5,17 +5,19 @@ from pydantic import HttpUrl
 
 from licitpy.downloader.purchase_order import PurchaseOrderDownloader
 from licitpy.parsers.purchase_order import PurchaseOrderParser
+from licitpy.services.base import BaseServices
 from licitpy.types.geography import Commune, Region
 from licitpy.types.purchase_order import PurchaseOrderFromCSV, Status
 
 
-class PurchaseOrderServices:
+class PurchaseOrderServices(BaseServices):
 
     def __init__(
         self,
         downloader: Optional[PurchaseOrderDownloader] = None,
         parser: Optional[PurchaseOrderParser] = None,
     ):
+        super().__init__()
 
         self.downloader = downloader or PurchaseOrderDownloader()
         self.parser = parser or PurchaseOrderParser()

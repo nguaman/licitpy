@@ -1,5 +1,4 @@
 from datetime import datetime
-from functools import partial
 from typing import List, Optional
 from zoneinfo import ZoneInfo
 
@@ -8,7 +7,9 @@ from pydantic import HttpUrl
 from licitpy.downloader.tender import TenderDownloader
 from licitpy.entities.award import Award
 from licitpy.entities.purchase_orders import PurchaseOrders
+
 from licitpy.parsers.tender import TenderParser
+from licitpy.services.base import BaseServices
 from licitpy.types.attachments import Attachment
 from licitpy.types.tender.open_contract import OpenContract
 from licitpy.types.tender.status import Status
@@ -23,13 +24,15 @@ from licitpy.types.tender.tender import (
 )
 
 
-class TenderServices:
+class TenderServices(BaseServices):
 
     def __init__(
         self,
         downloader: Optional[TenderDownloader] = None,
         parser: Optional[TenderParser] = None,
     ):
+
+        super().__init__()
 
         self.downloader: TenderDownloader = downloader or TenderDownloader()
         self.parser: TenderParser = parser or TenderParser()
@@ -252,17 +255,7 @@ class TenderServices:
         """
 
         html = self.downloader.get_html_from_url(url)
-        attachments: List[Attachment] = self.parser.get_attachments(html)
-
-        for attachment in attachments:
-
-            download_attachment_fn = partial(
-                self.downloader.download_attachment, url, attachment
-            )
-
-            attachment._download_fn = download_attachment_fn
-
-        return attachments
+        return self.get_attachments(url, html)
 
     def get_signed_base_from_attachments(
         self, attachments: List[Attachment]

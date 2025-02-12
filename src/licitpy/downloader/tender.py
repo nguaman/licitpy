@@ -9,7 +9,6 @@ from tqdm import tqdm
 
 from licitpy.downloader.base import BaseDownloader
 from licitpy.parsers.tender import TenderParser
-from licitpy.types.attachments import Attachment
 from licitpy.types.download import MassiveDownloadSource
 from licitpy.types.tender.open_contract import OpenContract
 from licitpy.types.tender.status import Status
@@ -275,12 +274,7 @@ class TenderDownloader(BaseDownloader):
 
         return HttpUrl(f"{base_url}?qs={query}")
 
-    def download_attachment(self, url: HttpUrl, attachment: Attachment) -> str:
-        """
-        Downloads an attachment from a URL using a POST request with the attachment ID.
-        """
 
-        return self.download_attachment_from_url(url, attachment)
 
     def get_tender_questions(self, code: str) -> List[Question]:
         questions = self.session.get(

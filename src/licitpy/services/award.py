@@ -1,18 +1,21 @@
-from typing import Optional
+from typing import List, Optional
 from pydantic import HttpUrl
 
 from licitpy.downloader.award import AwardDownloader
 from licitpy.parsers.award import AwardParser
+from licitpy.services.base import BaseServices
+from licitpy.types.attachments import Attachment
 from licitpy.types.award import Method
 
 
-class AwardServices:
+class AwardServices(BaseServices):
 
     def __init__(
         self,
         downloader: Optional[AwardDownloader] = None,
         parser: Optional[AwardParser] = None,
     ):
+        super().__init__()
 
         self.downloader = downloader or AwardDownloader()
         self.parser = parser or AwardParser()
@@ -36,7 +39,7 @@ class AwardServices:
         """
         return self.parser.get_method_from_html(html)
 
-    def get_award_amount(self, html: str) -> float:
+    def get_award_amount(self, html: str) -> int:
         """
         Field : Monto Neto Adjudicado
 
@@ -45,10 +48,18 @@ class AwardServices:
 
         return self.parser.get_award_amount_from_html(html)
 
-    def get_estimated_amount(self, html: str) -> float:
+    def get_estimated_amount(self, html: str) -> int:
         """
         Field: Monto Neto Estimado del Contrato
 
         Get the estimated amount of an award given its HTML content.
         """
         return self.parser.get_estimated_amount_from_html(html)
+
+    def get_attachments_from_url(self, url: HttpUrl) -> List[Attachment]:
+        """
+        Get the attachments from the URL.
+        """
+
+        html = self.downloader.get_html_from_url(url)
+        return self.get_attachments(url, html)

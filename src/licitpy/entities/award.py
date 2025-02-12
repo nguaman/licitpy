@@ -1,7 +1,8 @@
-from typing import Optional
+from typing import List, Optional
 from pydantic import HttpUrl
 
 from licitpy.services.award import AwardServices
+from licitpy.types.attachments import Attachment
 from licitpy.types.award import Method
 
 
@@ -15,8 +16,9 @@ class Award:
         self._url: Optional[HttpUrl] = None
         self._method: Optional[Method] = None
         self._html: Optional[str] = None
-        self._award_amount: Optional[float] = None
-        self._estimated_amount: Optional[float] = None
+        self._award_amount: Optional[int] = None
+        self._estimated_amount: Optional[int] = None
+        self._attachments: Optional[List[Attachment]] = None
 
         self.services = services or AwardServices()
 
@@ -39,13 +41,19 @@ class Award:
         return self._method
 
     @property
-    def award_amount(self) -> float:
+    def award_amount(self) -> int:
         if self._award_amount is None:
             self._award_amount = self.services.get_award_amount(self.html)
         return self._award_amount
 
     @property
-    def estimated_amount(self) -> float:
+    def estimated_amount(self) -> int:
         if self._estimated_amount is None:
             self._estimated_amount = self.services.get_estimated_amount(self.html)
         return self._estimated_amount
+
+    @property
+    def attachments(self) -> List[Attachment]:
+        if self._attachments is None:
+            self._attachments = self.services.get_attachments_from_url(self.url)
+        return self._attachments

@@ -45,3 +45,5 @@ class AwardParser(BaseParser):
 
         amount = self.get_text_by_element_id(html, "lblEstimatedAmountShow")
         return amount_to_int(amount)
+
+
