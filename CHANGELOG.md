@@ -1,12 +1,23 @@
 # CHANGELOG
 
 
+## v0.11.0 (2025-02-11)
+
+### Bug Fixes
+
+- We updated the packages and followed Bandit recommendations
+  ([`62cfa56`](https://github.com/nguaman/licitpy/commit/62cfa568dcc661bbe7f3aae8c39293d427bbd58f))
+
+
 ## v0.10.0 (2025-01-11)
 
 ### Features
 
 - Added whether subcontracting is allowed and whether it is a renewable tender
   ([`f1873ad`](https://github.com/nguaman/licitpy/commit/f1873ad407559ca64ed952cf9716c260ffff9efd))
+
+- We added the Awarded entity and added support for Python 3.12
+  ([`a3f8e27`](https://github.com/nguaman/licitpy/commit/a3f8e274b99727da4df073aa5a7b2ea626a98243))
 
 
 ## v0.9.0 (2025-01-11)
