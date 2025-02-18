@@ -1,11 +1,11 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
 from pydantic import HttpUrl
 
 from licitpy.downloader.award import AwardDownloader
 from licitpy.parsers.award import AwardParser
 from licitpy.services.base import BaseServices
 from licitpy.types.attachments import Attachment
-from licitpy.types.award import Method
+from licitpy.types.award import AwardResult, Method
 
 
 class AwardServices(BaseServices):
@@ -63,3 +63,9 @@ class AwardServices(BaseServices):
 
         html = self.downloader.get_html_from_url(url)
         return self.get_attachments(url, html)
+
+    def get_results(self, html: str) -> AwardResult:
+        """
+        Get the results of an award given its HTML content.
+        """
+        return self.parser.get_results_from_html(html)

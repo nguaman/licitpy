@@ -22,7 +22,6 @@ pprint(
 print(" Items ".center(80, "="))
 pprint(tender.items)
 
-
 attachments = tender.attachments
 
 if attachments:
@@ -74,5 +73,38 @@ if tender.status is Status.AWARDED:
                     "size": award_attachment.size,
                     "upload_date": award_attachment.upload_date,
                     "file_type": award_attachment.file_type,
+                }
+            )
+results = award.results
+
+if results:
+    print(" Results ".center(80, "="))
+
+    for item in results.items:
+
+        print(" Item ".center(80, "="))
+        
+        pprint(
+            {
+                "item_index": item.item_index,
+                "item_name": item.item_name,
+                "item_description": item.item_description,
+                "item_onu": item.item_onu,
+                "item_quantity": item.item_quantity,
+                "item_total_awarded_amount": item.item_total_awarded_amount,
+            }
+        )
+
+        print(" Suppliers ".center(80, "="))
+
+        for supplier in item.suppliers:
+            pprint(
+                {
+                    "supplier_name": supplier.supplier_name,
+                    "supplier_item_description": supplier.supplier_item_description,
+                    "supplier_bid_total_price": supplier.supplier_bid_total_price,
+                    "supplier_awarded_quantity": supplier.supplier_awarded_quantity,
+                    "supplier_total_awarded_amount": supplier.supplier_total_awarded_amount,
+                    "supplier_bid_result": supplier.supplier_bid_result,
                 }
             )
