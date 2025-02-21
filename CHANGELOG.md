@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.13.0 (2025-02-18)
+
+### Features
+
+- Added the table information with the details of the proposals in the award
+  ([`09222a7`](https://github.com/nguaman/licitpy/commit/09222a7b3795451aeb7bae1f1e0be906b4251dc9))
+
+
 ## v0.12.0 (2025-02-12)
 
 
