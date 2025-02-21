@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.13.2 (2025-02-21)
+
+### Bug Fixes
+
+- We optimized the logic for obtaining bids from the API and the CSV
+  ([`85334f7`](https://github.com/nguaman/licitpy/commit/85334f71ae8ebc81097a2c324b43723306fed3bf))
+
+
 ## v0.13.1 (2025-02-21)
 
 
