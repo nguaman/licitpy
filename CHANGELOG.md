@@ -1,7 +1,15 @@
 # CHANGELOG
 
 
+## v0.13.1 (2025-02-21)
+
+
 ## v0.13.0 (2025-02-18)
+
+### Bug Fixes
+
+- Omit bidding code when it is not yet available in the OCDS API of Mercado Público
+  ([`773359c`](https://github.com/nguaman/licitpy/commit/773359c1f698348692405f5cb03ac3434611c5d9))
 
 ### Features
 
