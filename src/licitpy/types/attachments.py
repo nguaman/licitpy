@@ -33,7 +33,6 @@ class FileType(Enum):
     PNG = "png"
     ODT = "odt"  # Open Document Text
     JPEG = "jpeg"
-    
 
 
 class Attachment(BaseModel):

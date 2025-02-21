@@ -128,20 +128,7 @@ class TenderDownloader(BaseDownloader):
 
         return tenders[:limit]
 
-    @staticmethod
-    def is_invalid_contract(contract: Optional[OpenContract]) -> bool:
-        """
-        Checks if the contract is invalid.
-        """
-
-        return not contract or not contract.records
-
-    @retry(
-        retry=retry_if_result(is_invalid_contract),
-        wait=wait_fixed(5),
-        stop=stop_after_attempt(3),
-    )
-    def get_tender_ocds_data_from_api(self, code: str) -> OpenContract:
+    def get_tender_ocds_data_from_api(self, code: str) -> OpenContract | None:
         """
         Retrieves OCDS data for a given tender code from the API.
         """
@@ -158,8 +145,17 @@ class TenderDownloader(BaseDownloader):
                 response = self.session.get(url)
                 data = response.json()
 
-                if "records" in data:
-                    self.session.cache.save_response(response)
+                # https://apis.mercadopublico.cl/OCDS/data/record/1725-41-LE25
+
+                # {
+                #     "status": 404,
+                #     "detail": "No se encontraron resultados."
+                # }
+
+                if "records" not in data:
+                    return None
+
+                self.session.cache.save_response(response)
 
         try:
             return OpenContract(**data)
@@ -167,7 +163,7 @@ class TenderDownloader(BaseDownloader):
             raise Exception(f"Error downloading OCDS data for tender {code}") from e
 
     def get_tender_ocds_data_from_codes(
-        self, tenders: List[TenderDataConsolidated]
+        self, tenders: List[TenderDataConsolidated], max_workers: int = 16
     ) -> Dict[str, OpenContract]:
         """
         Retrieves OCDS data for a list of tenders from the API.
@@ -175,7 +171,7 @@ class TenderDownloader(BaseDownloader):
 
         data_tenders: Dict[str, OpenContract] = {}
 
-        with ThreadPoolExecutor(max_workers=32) as executor:
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
 
             future_to_tender = {
                 executor.submit(self.get_tender_ocds_data_from_api, tender.code): tender
@@ -190,6 +186,9 @@ class TenderDownloader(BaseDownloader):
 
                 tender = future_to_tender[future]
                 data = future.result()
+
+                if data is None:
+                    continue
 
                 data_tenders[tender.code] = data
 
@@ -273,8 +272,6 @@ class TenderDownloader(BaseDownloader):
         )
 
         return HttpUrl(f"{base_url}?qs={query}")
-
-
 
     def get_tender_questions(self, code: str) -> List[Question]:
         questions = self.session.get(

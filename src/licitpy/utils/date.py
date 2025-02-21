@@ -120,4 +120,3 @@ def determine_date_range(
         return start_date, end_date
 
     raise ValueError("Either a time range or both start and end dates must be provided")
-

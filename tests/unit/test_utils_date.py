@@ -222,7 +222,7 @@ def test_determine_date_range_invalid_date_order() -> None:
     """
     Test that `determine_date_range` raises a ValueError when start_date is after end_date.
     """
-    
+
     start_date = "2023-12-15"
     end_date = "2023-12-01"
 
@@ -234,7 +234,7 @@ def test_determine_date_range_missing_parameters() -> None:
     """
     Test that `determine_date_range` raises a ValueError when no time range or dates are provided.
     """
-    
+
     with pytest.raises(
         ValueError,
         match="Either a time range or both start and end dates must be provided",
@@ -246,7 +246,7 @@ def test_determine_date_range_partial_dates() -> None:
     """
     Test that `determine_date_range` raises a ValueError when only one of the start_date or end_date is provided.
     """
-    
+
     with pytest.raises(
         ValueError,
         match="Either a time range or both start and end dates must be provided",

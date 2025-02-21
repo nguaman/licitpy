@@ -1,6 +1,7 @@
 from typing import List
 
 from pydantic import HttpUrl
+
 from licitpy.services.common.attachment import AttachmentServices
 from licitpy.types.attachments import Attachment
 

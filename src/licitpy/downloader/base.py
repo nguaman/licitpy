@@ -11,7 +11,6 @@ from requests_cache import CachedSession
 from tenacity import retry, stop_after_attempt, wait_incrementing
 from tqdm import tqdm
 
-
 from licitpy.settings import settings
 from licitpy.types.download import MassiveDownloadSource
 

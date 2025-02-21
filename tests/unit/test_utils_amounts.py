@@ -1,4 +1,5 @@
 import pytest
+
 from licitpy.utils.amounts import amount_to_int
 
 

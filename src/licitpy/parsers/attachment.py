@@ -1,12 +1,14 @@
 import re
 from typing import List
+
+from lxml.html import HtmlElement
+
 from licitpy.parsers.base import BaseParser
 from licitpy.types.attachments import Attachment, FileType
-from lxml.html import HtmlElement
 
 
 class AttachmentParser(BaseParser):
-    
+
     def _get_table_attachments(self, html: str) -> HtmlElement:
         """
         Get the table containing the attachments from the HTML content.
@@ -118,4 +120,3 @@ class AttachmentParser(BaseParser):
             attachments.append(attachment)
 
         return attachments
-

@@ -1,4 +1,5 @@
 import pytest
+
 from licitpy.utils.validators import is_valid_public_market_code
 
 

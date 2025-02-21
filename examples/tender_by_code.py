@@ -75,6 +75,7 @@ if tender.status is Status.AWARDED:
                     "file_type": award_attachment.file_type,
                 }
             )
+
 results = award.results
 
 if results:
@@ -83,7 +84,7 @@ if results:
     for item in results.items:
 
         print(" Item ".center(80, "="))
-        
+
         pprint(
             {
                 "item_index": item.item_index,

@@ -23,7 +23,6 @@ class Tenders:
         return Tenders(tenders)
 
     def in_region(self, region: Region) -> Tenders:
-
         tenders = [tender for tender in self._tenders if tender.region == region]
         return Tenders(tenders)
 

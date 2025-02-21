@@ -1,7 +1,8 @@
+import pytest
 from lxml.html import HtmlElement
+
 from licitpy.parsers.attachment import AttachmentParser
 from licitpy.types.attachments import Attachment, FileType
-import pytest
 
 
 @pytest.fixture

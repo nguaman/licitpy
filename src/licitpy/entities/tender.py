@@ -12,7 +12,7 @@ from licitpy.types.attachments import Attachment
 from licitpy.types.geography import Region
 from licitpy.types.tender.open_contract import OpenContract
 from licitpy.types.tender.status import Status
-from licitpy.types.tender.tender import Item, Question, Subcontracting, Tier, Renewal
+from licitpy.types.tender.tender import Item, Question, Renewal, Subcontracting, Tier
 from licitpy.utils.validators import is_valid_public_market_code
 
 
@@ -63,7 +63,7 @@ class Tender:
         self.services = services or TenderServices()
 
     @property
-    def ocds(self) -> OpenContract:
+    def ocds(self) -> OpenContract | None:
         if self._ocds is None:
             self._ocds = self.services.get_ocds_data(self.code)
         return self._ocds
@@ -82,30 +82,33 @@ class Tender:
         return self._html
 
     @property
-    def opening_date(self) -> datetime:
-        if self._opening_date is None:
+    def opening_date(self) -> datetime | None:
+        if self._opening_date is None and self.ocds:
             self._opening_date = self.services.get_opening_date(self.ocds)
         return self._opening_date
 
     @property
-    def closing_date(self) -> datetime:
-        if self._closing_date is None:
+    def closing_date(self) -> datetime | None:
+        if self._closing_date is None and self.ocds:
             self._closing_date = self.services.get_closing_date(self.ocds)
         return self._closing_date
 
     @property
-    def is_open(self) -> bool:
+    def is_open(self) -> bool | None:
+        if self.closing_date is None:
+            return None
+
         return self.services.is_open(self.closing_date)
 
     @property
-    def status(self) -> Status:
-        if self._status is None:
+    def status(self) -> Status | None:
+        if self._status is None and self.ocds:
             self._status = self.services.get_status(self.ocds)
         return self._status
 
     @property
-    def title(self) -> str:
-        if self._title is None:
+    def title(self) -> str | None:
+        if self._title is None and self.ocds:
             self._title = self.services.get_title(self.ocds)
         return self._title
 
@@ -116,14 +119,14 @@ class Tender:
         return self._tier
 
     @property
-    def description(self) -> str:
-        if self._description is None:
+    def description(self) -> str | None:
+        if self._description is None and self.ocds:
             self._description = self.services.get_description(self.ocds)
         return self._description
 
     @property
-    def region(self) -> Region:
-        if self._region is None:
+    def region(self) -> Region | None:
+        if self._region is None and self.ocds:
             self._region = self.services.get_region(self.ocds)
         return self._region
 
@@ -190,10 +193,10 @@ class Tender:
 
     @property
     def is_renewable(self) -> Renewal:
-        if self.is_renewable is None:
-            self.is_renewable = self.services.is_renewable(self.html)
+        if self._is_renewable is None:
+            self._is_renewable = self.services.is_renewable(self.html)
 
-        return self.is_renewable
+        return self._is_renewable
 
     @property
     def award(self) -> Award:

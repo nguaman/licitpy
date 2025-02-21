@@ -7,7 +7,6 @@ from pydantic import HttpUrl
 from licitpy.downloader.tender import TenderDownloader
 from licitpy.entities.award import Award
 from licitpy.entities.purchase_orders import PurchaseOrders
-
 from licitpy.parsers.tender import TenderParser
 from licitpy.services.base import BaseServices
 from licitpy.types.attachments import Attachment
@@ -78,7 +77,7 @@ class TenderServices(BaseServices):
         # the status must be verified using the status from the html.
         return self.verify_status(status, closing_date, code)
 
-    def get_ocds_data(self, code: str) -> OpenContract:
+    def get_ocds_data(self, code: str) -> OpenContract | None:
         """
         Get the Open Contract Data (OCDS) from the tender code.
         """
@@ -127,6 +126,20 @@ class TenderServices(BaseServices):
 
         # Enrich the tender data with information from OCDS
         for tender_consolidated in tenders_consolidated:
+
+            # In some situations, the bidding code is not yet available
+            # in the OCDS API of Mercado Público, so it should be omitted.
+
+            # eg: 1725-41-LE25
+            # https://apis.mercadopublico.cl/OCDS/data/record/1725-41-LE25
+
+            # {
+            #     "status": 404,
+            #     "detail": "No se encontraron resultados."
+            # }
+
+            if tender_consolidated.code not in data_tenders:
+                continue
 
             # Filtering tenders that are internal QA tests from Mercado Publico.
             # eg: 500977-191-LS24 : Nombre Unidad : MpOperaciones

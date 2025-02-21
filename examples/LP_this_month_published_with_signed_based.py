@@ -1,7 +1,7 @@
 from pprint import pprint
 
 from licitpy import Licitpy
-from licitpy.types import Tier, TimeRange, Status
+from licitpy.types import Status, Tier, TimeRange
 
 licitpy = Licitpy()
 

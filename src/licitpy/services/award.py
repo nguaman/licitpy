@@ -1,4 +1,5 @@
 from typing import Dict, List, Optional
+
 from pydantic import HttpUrl
 
 from licitpy.downloader.award import AwardDownloader

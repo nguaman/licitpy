@@ -1,8 +1,9 @@
 import secrets
-from requests_cache import disabled
 from typing import Optional
 
 from pydantic import HttpUrl
+from requests_cache import disabled
+
 from licitpy.downloader.base import BaseDownloader
 from licitpy.parsers.attachment import AttachmentParser
 from licitpy.types.attachments import Attachment

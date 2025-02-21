@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 from datetime import date
 
@@ -7,6 +8,9 @@ from licitpy.entities.tenders import Tenders
 
 
 class BaseSource(ABC):
+
+    def __init__(self) -> None:
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     @abstractmethod
     def get_monthly_tenders(self, start_date: date, end_date: date) -> Tenders:

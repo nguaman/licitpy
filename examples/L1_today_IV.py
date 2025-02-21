@@ -16,7 +16,7 @@ tenders = (
 
 for tender in tenders:
 
-    print(tender.url)
+    print(f"URL: {tender.url}")
 
     pprint(
         {

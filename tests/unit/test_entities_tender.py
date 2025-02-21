@@ -247,7 +247,9 @@ def test_ocds_property_initialization(mock_tender_services: TenderServices) -> N
     ocds_data = tender.ocds
 
     assert (
-        ocds_data.uri == "https://apis.mercadopublico.cl/OCDS/data/record/3955-54-LE24"
+        ocds_data is not None
+        and ocds_data.uri
+        == "https://apis.mercadopublico.cl/OCDS/data/record/3955-54-LE24"
     )
 
     # Now it should be set

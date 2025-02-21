@@ -1,6 +1,8 @@
 import re
 from typing import Dict, List
+
 from pydantic import HttpUrl
+
 from licitpy.parsers.base import BaseParser
 from licitpy.types.award import (
     AwardResult,
@@ -84,7 +86,7 @@ class AwardParser(BaseParser):
         """
         Get the results of an award given its HTML content.
         """
-        
+
         codes = self.get_codes_from_html(html)
 
         table_codes = {

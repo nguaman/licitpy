@@ -10,7 +10,7 @@ from licitpy.parsers.base import BaseParser
 from licitpy.types.geography import Region
 from licitpy.types.tender.open_contract import OpenContract, PartyRoleEnum
 from licitpy.types.tender.status import StatusFromImage, StatusFromOpenContract
-from licitpy.types.tender.tender import Item, Renewal, Tier, Unit, Subcontracting
+from licitpy.types.tender.tender import Item, Renewal, Subcontracting, Tier, Unit
 
 
 class TenderParser(BaseParser):
@@ -333,5 +333,3 @@ class TenderParser(BaseParser):
         text = self.get_text_by_element_id(html, "lblFicha7ContratoRenovacion")
 
         return Renewal(text)
-
-
