@@ -6,10 +6,15 @@ from licitpy.entities.purchase_order import PurchaseOrder
 from licitpy.entities.tender import Tender
 from licitpy.entities.tenders import Tenders
 from licitpy.sources.base import BaseSource
+from licitpy.types.tender.status import Status
 
 
 class MockBaseSource(BaseSource):
+
     def get_monthly_tenders(self, start_date: date, end_date: date) -> Tenders:
+        return Tenders([])
+
+    def get_tenders_by_status(self, status: Status) -> Tenders:
         return Tenders([])
 
     def get_tender(self, code: str) -> Tender:

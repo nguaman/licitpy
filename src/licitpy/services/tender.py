@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from zoneinfo import ZoneInfo
 
 from pydantic import HttpUrl
@@ -7,6 +7,7 @@ from pydantic import HttpUrl
 from licitpy.downloader.tender import TenderDownloader
 from licitpy.entities.award import Award
 from licitpy.entities.purchase_orders import PurchaseOrders
+from licitpy.parsers.base import ElementNotFoundException
 from licitpy.parsers.tender import TenderParser
 from licitpy.services.base import BaseServices
 from licitpy.types.attachments import Attachment
@@ -36,46 +37,31 @@ class TenderServices(BaseServices):
         self.downloader: TenderDownloader = downloader or TenderDownloader()
         self.parser: TenderParser = parser or TenderParser()
 
-    def verify_status(
-        self, status: Status, closing_date: datetime, code: str
-    ) -> Status:
-        """
-        Verify the status of the tender.
-        """
+    def get_basics(self, code: str) -> Tuple[Status, datetime, Region, datetime]:
 
-        # If the tender is published (active) but the closing date has passed,
-        # the status must be verified using the status from the html.
+        html = self.get_html_from_code(code)
 
-        # This is because 'active' indicates that the bidding process is proceeding normally.
-        # However, 'active' can also mean that the bidding has already closed and does not necessarily
-        # indicate that it is in the 'published' state.
+        status = self.get_status(html)
+        opening_date = self.get_opening_date_from_html(html)
 
-        is_open = self.is_open(closing_date)
+        try:
+            region = self.get_region_from_html(html)
+        except ElementNotFoundException:
+            data = self.get_ocds_data(code)
 
-        if status == Status.PUBLISHED and not is_open:
+            if data is None:
+                raise ValueError(f"No OCDS data found for tender {code}")
 
-            html = self.get_html_from_code(code)
-            status_from_image = self.parser.get_tender_status_from_html(html)
+            region = self.get_region(data)
 
-            # StatusFromImage.PUBLISHED -> Status.PUBLISHED
-            return Status(status_from_image.name)
+        closing_date = self.get_closing_date_from_html(html)
 
-        return status
+        return status, opening_date, region, closing_date
 
-    def get_status(self, data: OpenContract) -> Status:
-        """
-        Get the status from the Open Contract (OCDS) data.
-        """
-        code = self.parser.get_tender_code_from_tender_ocds_data(data)
-        closing_date = self.get_closing_date(data)
+    def get_status(self, html: str) -> Status:
 
-        # We standardize the status provided by the OCDS data with the standardized status.
-        # StatusFromOpenContract.PUBLISHED -> Status.PUBLISHED
-        status = Status(self.parser.get_tender_status_from_tender_ocds_data(data).name)
-
-        # If the tender is published (active) but the closing date has passed,
-        # the status must be verified using the status from the html.
-        return self.verify_status(status, closing_date, code)
+        status_from_html = self.parser.get_tender_status_from_html(html)
+        return Status(status_from_html.name)
 
     def get_ocds_data(self, code: str) -> OpenContract | None:
         """
@@ -105,6 +91,13 @@ class TenderServices(BaseServices):
 
         return self.parser.get_tender_opening_date_from_tender_ocds_data(data)
 
+    def get_opening_date_from_html(self, html: str) -> datetime:
+        """
+        Get the opening date from the HTML.
+        """
+
+        return self.parser.get_opening_date_from_html(html)
+
     def get_html(self, url: HttpUrl) -> str:
         """
         Get the HTML from the URL.
@@ -113,72 +106,11 @@ class TenderServices(BaseServices):
         return self.downloader.get_html_from_url(url)
 
     def get_tenders_from_sources(self, year: int, month: int) -> List[TenderFromSource]:
+        """
+        We retrieve the tenders code from both the API (OCDS) and the CSV (Massive Download).
+        """
 
-        # # We retrieve the tenders from both the API (OCDS) and the CSV (Massive Download).
-        tenders_consolidated = self.downloader.get_consolidated_tender_data(year, month)
-
-        # Get the OCDS data for each tender
-        data_tenders = self.downloader.get_tender_ocds_data_from_codes(
-            tenders_consolidated
-        )
-
-        tenders_from_source: List[TenderFromSource] = []
-
-        # Enrich the tender data with information from OCDS
-        for tender_consolidated in tenders_consolidated:
-
-            # In some situations, the bidding code is not yet available
-            # in the OCDS API of Mercado Público, so it should be omitted.
-
-            # eg: 1725-41-LE25
-            # https://apis.mercadopublico.cl/OCDS/data/record/1725-41-LE25
-
-            # {
-            #     "status": 404,
-            #     "detail": "No se encontraron resultados."
-            # }
-
-            if tender_consolidated.code not in data_tenders:
-                continue
-
-            # Filtering tenders that are internal QA tests from Mercado Publico.
-            # eg: 500977-191-LS24 : Nombre Unidad : MpOperaciones
-            if tender_consolidated.code.startswith("500977-"):
-                continue
-
-            # Retrieve the OCDS data for the current tender
-            data = data_tenders[tender_consolidated.code]
-
-            # Get the opening date in datetime format
-            opening_date = self.parser.get_tender_opening_date_from_tender_ocds_data(
-                data
-            )
-
-            # Retrieve the tender status, which needs to be verified at a later stage.
-            # This is because the status from OCDS may have different meanings compared to those displayed on the website.
-            status = tender_consolidated.status or Status(
-                self.parser.get_tender_status_from_tender_ocds_data(data).name
-            )
-
-            # Retrieve the tender region
-            region = self.parser.get_tender_region_from_tender_ocds_data(data)
-
-            # Get the closing date in datetime format
-            closing_date = self.get_closing_date(data)
-
-            tenders_from_source.append(
-                TenderFromSource(
-                    code=tender_consolidated.code,
-                    status=status,
-                    region=region,
-                    opening_date=opening_date,
-                    closing_date=closing_date,
-                )
-            )
-
-        return sorted(
-            tenders_from_source, key=lambda tender: tender.opening_date, reverse=True
-        )
+        return self.downloader.get_consolidated_tender_data(year, month)
 
     def get_tier(self, code: str) -> Tier:
         """
@@ -201,6 +133,13 @@ class TenderServices(BaseServices):
 
         return self.parser.get_tender_region_from_tender_ocds_data(data)
 
+    def get_region_from_html(self, html: str) -> Region:
+        """
+        Get the region from the HTML.
+        """
+
+        return self.parser.get_tender_region_from_html(html)
+
     def get_closing_date(self, data: OpenContract) -> datetime:
         """
         Get the closing date from the Open Contract (OCDS) data.
@@ -216,6 +155,13 @@ class TenderServices(BaseServices):
         html = self.get_html_from_code(code)
 
         # Get the closing date from the HTML
+        return self.get_closing_date_from_html(html)
+
+    def get_closing_date_from_html(self, html: str) -> datetime:
+        """
+        Get the closing date from the HTML.
+        """
+
         return self.parser.get_closing_date_from_html(html)
 
     def get_code_from_ocds_data(self, data: OpenContract) -> str:

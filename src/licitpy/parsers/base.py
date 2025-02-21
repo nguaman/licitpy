@@ -50,6 +50,7 @@ class BaseParser:
         html_element: HtmlElement = self.get_html_element_by_id(html, element_id)
 
         if not self.html_element_exists(html_element):
+
             raise ElementNotFoundException(f"Element with ID '{element_id}' not found")
 
         attribute_elements = html_element[0].xpath(f".//{attribute}")

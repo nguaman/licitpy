@@ -103,7 +103,7 @@ class Tender:
     @property
     def status(self) -> Status | None:
         if self._status is None and self.ocds:
-            self._status = self.services.get_status(self.ocds)
+            self._status = self.services.get_status(self.html)
         return self._status
 
     @property

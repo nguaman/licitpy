@@ -5,6 +5,7 @@ from licitpy.entities.tender import Tender
 from licitpy.entities.tenders import Tenders
 from licitpy.sources import API, Local
 from licitpy.types.search import TimeRange
+from licitpy.types.tender.status import Status
 from licitpy.utils.date import determine_date_range
 
 
@@ -32,3 +33,10 @@ class TendersClient:
         """
 
         return self.source.get_tender(code)
+
+    def from_status(self, status: Status) -> Tenders:
+        """
+        Retrieves tenders by their status.
+        """
+
+        return self.source.get_tenders_by_status(status)

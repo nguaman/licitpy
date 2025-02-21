@@ -7,13 +7,6 @@ from pytest_mock import MockerFixture
 from requests import Response
 
 from licitpy.downloader.tender import TenderDownloader
-from licitpy.types.tender.open_contract import (
-    CompiledRelease,
-    OpenContract,
-    Period,
-    Record,
-    Tender,
-)
 from licitpy.types.tender.tender import TenderFromAPI
 
 
@@ -82,9 +75,10 @@ def test_get_tender_url_from_code(tender_downloader: TenderDownloader) -> None:
     with patch.object(
         tender_downloader.session, "head", return_value=mock_response
     ) as mock_head:
-        result = tender_downloader.get_tender_url_from_code(code)
 
-        mock_head.assert_called_once_with(f"{base_url}?idlicitacion={code}")
+        result = tender_downloader.get_tender_url_from_code(code)
+        mock_head.assert_called_once_with(f"{base_url}?idlicitacion={code}", timeout=30)
+
         assert result == expected_url
 
 

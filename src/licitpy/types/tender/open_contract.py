@@ -31,6 +31,12 @@ class TenderCountryEnum(Enum):
     CL = "Chile"
     US = "Estados Unidos"
     CO = "Colombia"
+    CN = "China"
+    BO = "Bolivia"
+    AR = "Argentina"
+    PE = "Perú"
+    ES = "España"
+    FR = "Francia"
 
 
 class Address(BaseModel):

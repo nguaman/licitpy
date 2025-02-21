@@ -93,6 +93,12 @@ def _time_range(time_range: TimeRange) -> Tuple[date, date]:
         return yesterday, yesterday
     elif time_range == TimeRange.THIS_MONTH:
         return beginning_of_month, today
+    elif time_range == TimeRange.LAST_THREE_MONTHS:
+        return today - timedelta(days=90), today
+    elif time_range == TimeRange.LAST_SIX_MONTHS:
+        return today - timedelta(days=180), today
+    elif time_range == TimeRange.LAST_YEAR:
+        return today - timedelta(days=365), today
     else:
         raise ValueError(f"Unsupported time range: {time_range}")
 

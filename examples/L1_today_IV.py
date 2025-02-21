@@ -13,6 +13,7 @@ tenders = (
     .limit(15)
 )
 
+print(f"Number of tenders: {tenders.count()}")
 
 for tender in tenders:
 

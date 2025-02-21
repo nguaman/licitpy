@@ -145,6 +145,15 @@ class TenderParser(BaseParser):
 
         return address.region
 
+    def get_tender_region_from_html(self, html: str) -> Region:
+        """
+        Get the region of a tender from its HTML content.
+        """
+
+        region = self.get_text_by_element_id(html, "lblFicha2Region")
+
+        return Region(region)
+
     def get_tender_tier(self, code: str) -> Tier:
         """
         Get the budget tier of a tender based on its code.
@@ -333,3 +342,15 @@ class TenderParser(BaseParser):
         text = self.get_text_by_element_id(html, "lblFicha7ContratoRenovacion")
 
         return Renewal(text)
+
+    def get_opening_date_from_html(self, html: str) -> datetime:
+        """
+        Get the opening date of a tender from its HTML content.
+        """
+
+        opening_date = self.get_text_by_element_id(html, "lblFicha3Publicacion")
+
+        # eg: 06-08-2024 9:11:02
+        return datetime.strptime(opening_date, "%d-%m-%Y %H:%M:%S").replace(
+            tzinfo=ZoneInfo("America/Santiago")
+        )

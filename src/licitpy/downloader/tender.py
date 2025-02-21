@@ -11,13 +11,12 @@ from licitpy.downloader.base import BaseDownloader
 from licitpy.parsers.tender import TenderParser
 from licitpy.types.download import MassiveDownloadSource
 from licitpy.types.tender.open_contract import OpenContract
-from licitpy.types.tender.status import Status
 from licitpy.types.tender.tender import (
     Question,
     QuestionAnswer,
-    TenderDataConsolidated,
     TenderFromAPI,
     TenderFromCSV,
+    TenderFromSource,
 )
 
 
@@ -59,6 +58,15 @@ class TenderDownloader(BaseDownloader):
         if limit is None:
             limit = total
 
+        progress_bar = tqdm(
+            total=total,
+            desc=f"Downloading {year}-{month:02} from OCDS API",
+            unit="records",
+            bar_format="{l_bar}{bar} {n_fmt}/{total_fmt} {unit}",
+        )
+
+        progress_bar.update(len(records["data"]))
+
         # Extract tender codes from the first batch of data
         tenders = [
             TenderFromAPI(code=str(tender["urlTender"]).split("/")[-1])
@@ -87,6 +95,8 @@ class TenderDownloader(BaseDownloader):
                 TenderFromAPI(code=str(tender["urlTender"]).split("/")[-1])
                 for tender in records["data"]
             )
+
+            progress_bar.update(len(records["data"]))
 
         # Return the exact number of requested records, sliced to the limit
         return tenders[:limit]
@@ -142,7 +152,7 @@ class TenderDownloader(BaseDownloader):
 
             with self.session.cache_disabled():
 
-                response = self.session.get(url)
+                response = self.session.get(url, timeout=30)
                 data = response.json()
 
                 # https://apis.mercadopublico.cl/OCDS/data/record/1725-41-LE25
@@ -157,62 +167,53 @@ class TenderDownloader(BaseDownloader):
 
                 self.session.cache.save_response(response)
 
-        try:
-            return OpenContract(**data)
-        except ValidationError as e:
-            raise Exception(f"Error downloading OCDS data for tender {code}") from e
+        return OpenContract(**data)
 
-    def get_tender_ocds_data_from_codes(
-        self, tenders: List[TenderDataConsolidated], max_workers: int = 16
-    ) -> Dict[str, OpenContract]:
-        """
-        Retrieves OCDS data for a list of tenders from the API.
-        """
+    # def get_tender_ocds_data_from_codes(
+    #     self, tenders: List[TenderDataConsolidated], max_workers: int = 16
+    # ) -> Dict[str, OpenContract]:
+    #     """
+    #     Retrieves OCDS data for a list of tenders from the API.
+    #     """
 
-        data_tenders: Dict[str, OpenContract] = {}
+    #     data_tenders: Dict[str, OpenContract] = {}
+    #     total = len(tenders)
 
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+    #     with ThreadPoolExecutor(max_workers=max_workers) as executor:
 
-            future_to_tender = {
-                executor.submit(self.get_tender_ocds_data_from_api, tender.code): tender
-                for tender in tenders
-            }
+    #         futures = {
+    #             executor.submit(self.get_tender_ocds_data_from_api, tender.code): tender
+    #             for tender in tenders
+    #         }
 
-            for future in tqdm(
-                as_completed(future_to_tender),
-                total=len(tenders),
-                desc="Downloading OCDS data",
-            ):
+    #         for future in tqdm(
+    #             as_completed(futures),
+    #             total=total,
+    #             desc="Downloading OCDS data",
+    #             mininterval=0.1,
+    #             smoothing=0,
+    #         ):
 
-                tender = future_to_tender[future]
-                data = future.result()
+    #             tender = futures[future]
 
-                if data is None:
-                    continue
+    #             try:
+    #                 data = future.result()
+    #             except Exception as e:
 
-                data_tenders[tender.code] = data
+    #                 raise Exception(
+    #                     f"Failed to download OCDS data for tender {tender.code}"
+    #                 ) from e
 
-        return data_tenders
+    #             if data is None:
+    #                 continue
+
+    #             data_tenders[tender.code] = data
+
+    #     return data_tenders
 
     def get_consolidated_tender_data(
         self, year: int, month: int
-    ) -> List[TenderDataConsolidated]:
-        """
-        Retrieves and consolidates tenders from both the API (OCDS) and CSV sources for a given year and month.
-
-        This method fetches tender codes from the API and tender details from the CSV, then merges them into a single list
-        of consolidated tender data. The consolidation ensures that each tender is uniquely represented by its code.
-
-        Args:
-            year (int): The year for which to retrieve tenders.
-            month (int): The month for which to retrieve tenders.
-
-        Returns:
-            List[TenderDataConsolidated]: A list of consolidated tender data, including tender codes and statuses.
-        """
-
-        # Consolidate the tenders from the CSV and the API
-        tenders_consolidated: List[TenderDataConsolidated] = []
+    ) -> List[TenderFromSource]:
 
         # Get only the tender codes from the API (OCDS)
         tenders_codes_from_api = self.get_tenders_codes_from_api(year, month)
@@ -220,37 +221,22 @@ class TenderDownloader(BaseDownloader):
         # Get the tenders from the CSV
         tenders_from_csv = self.get_tenders_from_csv(year, month)
 
-        existing_codes: Set[str] = set()
+        # Consolidate the tenders from the CSV and the API
+        tenders_consolidated = [
+            TenderFromSource(code=csv_tender.CodigoExterno)
+            for csv_tender in tenders_from_csv
+        ] + [
+            TenderFromSource(code=api_tender.code)
+            for api_tender in tenders_codes_from_api
+        ]
 
-        # Merge the tenders from the CSV and the API
+        # Remove duplicates by converting to a dictionary and back to a list
+        return list({tender.code: tender for tender in tenders_consolidated}.values())
 
-        # From the CSV, we retrieve the following fields:
-        # - The tender code
-        # - The tender status (Published, Awarded, etc.)
-
-        for csv_tender in tenders_from_csv:
-
-            tenders_consolidated.append(
-                TenderDataConsolidated(
-                    code=csv_tender.CodigoExterno,
-                    status=Status(csv_tender.Estado.name),
-                )
-            )
-
-            existing_codes.add(csv_tender.CodigoExterno)
-
-        # From the API, we only retrieve the tender code because we download
-        # the indexes from the OCDS API.
-        for api_tender in tenders_codes_from_api:
-
-            if api_tender.code in existing_codes:
-                continue
-
-            tenders_consolidated.append(TenderDataConsolidated(code=api_tender.code))
-            existing_codes.add(api_tender.code)
-
-        return tenders_consolidated
-
+    # @retry(
+    #     stop=stop_after_attempt(3),
+    #     wait=wait_fixed(3),
+    # )
     def get_tender_url_from_code(self, code: str) -> HttpUrl:
         """
         Generates the tender URL from a given tender code.
@@ -265,7 +251,7 @@ class TenderDownloader(BaseDownloader):
         base_url = "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx"
 
         query = (
-            self.session.head(f"{base_url}?idlicitacion={code}")
+            self.session.head(f"{base_url}?idlicitacion={code}", timeout=30)
             .headers["Location"]
             .split("qs=")[1]
             .strip()

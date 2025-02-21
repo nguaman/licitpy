@@ -5,6 +5,7 @@ from datetime import date
 from licitpy.entities.purchase_order import PurchaseOrder
 from licitpy.entities.tender import Tender
 from licitpy.entities.tenders import Tenders
+from licitpy.types.tender.status import Status
 
 
 class BaseSource(ABC):
@@ -22,4 +23,8 @@ class BaseSource(ABC):
 
     @abstractmethod
     def get_purchase_order(self, code: str) -> PurchaseOrder:
+        pass  # pragma: no cover
+
+    @abstractmethod
+    def get_tenders_by_status(self, status: Status) -> Tenders:
         pass  # pragma: no cover

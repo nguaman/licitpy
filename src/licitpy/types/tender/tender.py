@@ -29,10 +29,10 @@ class Tier(Enum):
 
 class TenderFromSource(BaseModel):
     code: str
-    status: Status
-    region: Region
-    closing_date: datetime
-    opening_date: datetime
+    # status: Status
+    # region: Region
+    # closing_date: datetime
+    # opening_date: datetime
 
 
 class TenderFromAPI(BaseModel):
@@ -44,9 +44,8 @@ class TenderFromCSV(BaseModel):
     Estado: StatusFromCSV
 
 
-class TenderDataConsolidated(BaseModel):
-    code: str
-    status: Status | None = None
+# class TenderDataConsolidated(BaseModel):
+#     code: str
 
 
 class QuestionAnswer(BaseModel):
