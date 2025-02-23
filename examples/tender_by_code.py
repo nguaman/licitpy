@@ -1,6 +1,8 @@
 from pprint import pprint
+from typing import List
 
 from licitpy import Licitpy
+from licitpy.types.attachments import Attachment
 from licitpy.types.tender.status import Status
 
 licitpy = Licitpy()
@@ -22,7 +24,7 @@ pprint(
 print(" Items ".center(80, "="))
 pprint(tender.items)
 
-attachments = tender.attachments
+attachments: List[Attachment] = tender.attachments
 
 if attachments:
     print(" Attachments ".center(80, "="))
