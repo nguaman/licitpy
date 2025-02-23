@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.13.3 (2025-02-23)
+
+### Bug Fixes
+
+- We expose the attachment model so that it can be used in the API
+  ([`5e0b602`](https://github.com/nguaman/licitpy/commit/5e0b60243b64350b2c9bdeac36369960af310e5f))
+
+
 ## v0.13.2 (2025-02-21)
 
 ### Bug Fixes
