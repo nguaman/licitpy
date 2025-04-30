@@ -260,7 +260,7 @@ def test_get_results_from_html_valid(award_parser: AwardParser) -> None:
         <span id="grdItemOC_ctl02_ucAward_lblDescription">Item Description 1</span>
         <span id="grdItemOC_ctl02_ucAward__LblRBICuantityNumber">10</span>
         <span id="grdItemOC_ctl02_ucAward_lblTotalLine">1.000</span>
-        <span id="grdItemOC_ctl02_ucAward_gvLines_ctl02_gvLines_lblOrganization">Supplier 1</span>
+        <span id="grdItemOC_ctl02_ucAward_gvLines_ctl02_gvLines_lblOrganization">33.333.333-3 DISTRIBUIDORA LIMITADA</span>
         <span id="grdItemOC_ctl02_ucAward_gvLines_ctl02_gvLines_lblSupplierComment">Comment 1</span>
         <span id="grdItemOC_ctl02_ucAward_gvLines_ctl02_gvLines_lblTotalNetPrice">500</span>
         <span id="grdItemOC_ctl02_ucAward_gvLines_ctl02_gvLines_txtAwardedQuantity">5</span>
@@ -282,13 +282,13 @@ def test_get_results_from_html_valid(award_parser: AwardParser) -> None:
                 item_total_awarded_amount=1000,
                 suppliers=[
                     SupplierBid(
-                        supplier_name="Supplier 1",
+                        supplier_name="DISTRIBUIDORA LIMITADA",
                         supplier_item_description="Comment 1",
                         supplier_bid_total_price="500",
                         supplier_awarded_quantity="5",
                         supplier_total_awarded_amount="500",
                         supplier_bid_result=ItemAwardStatus("No Adjudicada"),
-                        supplier_rut="11.123.456-7",
+                        supplier_rut="33.333.333-3",
                     )
                 ],
             )
