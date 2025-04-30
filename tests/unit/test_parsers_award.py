@@ -288,6 +288,7 @@ def test_get_results_from_html_valid(award_parser: AwardParser) -> None:
                         supplier_awarded_quantity="5",
                         supplier_total_awarded_amount="500",
                         supplier_bid_result=ItemAwardStatus("No Adjudicada"),
+                        supplier_rut="11.123.456-7",
                     )
                 ],
             )
