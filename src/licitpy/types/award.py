@@ -14,6 +14,7 @@ class ItemAwardStatus(Enum):
 
 
 class SupplierBid(BaseModel):
+    supplier_rut: str
     supplier_name: str
     supplier_item_description: str
     supplier_bid_total_price: int

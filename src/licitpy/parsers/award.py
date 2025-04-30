@@ -1,5 +1,5 @@
 import re
-from typing import Dict, List
+from typing import List
 
 from pydantic import HttpUrl
 
@@ -144,9 +144,24 @@ class AwardParser(BaseParser):
                     )
                 )
 
+                # "supplier_name": "76.080.334-0 COMERCIALIZADORA LIZETTE FAUNDEZ MARTINEZ EIRL",
+                # "supplier_name": "7.191.242-6 ALVARO JOSE DEL CAMPO SAEZ",
+                # "supplier_name": "76.535.946-5 DISTRIBUIDORA DANIEL BARAHONA  LIMITADA",
+
+                rut_name_match = re.match(
+                    r"^(\d{1,2}\.\d{3}\.\d{3}-[0-9kK])\s+(.*)", supplier_name
+                )
+
+                if rut_name_match:
+                    supplier_rut = rut_name_match.group(1).upper().strip()
+                    supplier_name = rut_name_match.group(2).strip()
+                else:
+                    raise ValueError(f"Invalid supplier format: {supplier_name}")
+
                 suppliers.append(
                     SupplierBid(
                         **{
+                            "supplier_rut": supplier_rut,
                             "supplier_name": supplier_name,
                             "supplier_item_description": supplier_item_description,
                             "supplier_bid_total_price": supplier_bid_total_price,

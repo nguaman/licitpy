@@ -1,10 +1,9 @@
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Dict, List, Optional, Set
+# from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import  List, Optional
 
 import pandas
-from pydantic import HttpUrl, ValidationError
+from pydantic import HttpUrl
 from requests_cache import CachedSession
-from tenacity import retry, retry_if_result, stop_after_attempt, wait_fixed
 from tqdm import tqdm
 
 from licitpy.downloader.base import BaseDownloader
@@ -231,6 +230,8 @@ class TenderDownloader(BaseDownloader):
         ]
 
         # Remove duplicates by converting to a dictionary and back to a list
+        # Duplicates are removed since a dictionary can only have unique keys.
+        # Therefore, the last value found for each key is retained.
         return list({tender.code: tender for tender in tenders_consolidated}.values())
 
     # @retry(
@@ -260,6 +261,7 @@ class TenderDownloader(BaseDownloader):
         return HttpUrl(f"{base_url}?qs={query}")
 
     def get_tender_questions(self, code: str) -> List[Question]:
+        
         questions = self.session.get(
             "https://www.mercadopublico.cl/Foros/Modules/FNormal/servicesPub.aspx",
             data={"opt": "101", "RFBCode": code},
