@@ -1,7 +1,23 @@
 # CHANGELOG
 
 
+## v0.13.5 (2025-04-30)
+
+### Testing
+
+- Test_get_results_from_html_valid with valid supplier format
+  ([`e881174`](https://github.com/nguaman/licitpy/commit/e8811741f18e5d5e6f3a10280fb518aa6d21f46e))
+
+- We added supplier_rut to the unit tests
+  ([`7941a10`](https://github.com/nguaman/licitpy/commit/7941a1054e57021f6d71caca03e582b87b2e3c3c))
+
+
 ## v0.13.4 (2025-02-23)
+
+### Bug Fixes
+
+- We added the supplier's RUT
+  ([`8137277`](https://github.com/nguaman/licitpy/commit/8137277e2a84bd1b7931e11e6dd2327628dc1d6b))
 
 
 ## v0.13.3 (2025-02-23)
