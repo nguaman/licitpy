@@ -1,12 +1,18 @@
 # CHANGELOG
 
 
+## v0.13.4 (2025-02-23)
+
+
 ## v0.13.3 (2025-02-23)
 
 ### Bug Fixes
 
 - We expose the attachment model so that it can be used in the API
   ([`5e0b602`](https://github.com/nguaman/licitpy/commit/5e0b60243b64350b2c9bdeac36369960af310e5f))
+
+- We expose the Item, Question, Renewal, and Subcontracting models
+  ([`f0ab927`](https://github.com/nguaman/licitpy/commit/f0ab927b829696818506cf13f95873728d601a5f))
 
 
 ## v0.13.2 (2025-02-21)
