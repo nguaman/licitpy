@@ -5,14 +5,6 @@ from typing import List
 from licitpy.core.entities.tender import Tender
 from licitpy.core.enums import Country
 
-# from licitpy.core.entities.tender import Tender
-# # from datetime import date
-
-# # from licitpy.entities.purchase_order import PurchaseOrder
-
-# # from licitpy.entities.tenders import Tenders
-# # from licitpy.types.tender.status import Status
-
 
 class SourceProvider(ABC):
 

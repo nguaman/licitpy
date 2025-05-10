@@ -9,6 +9,7 @@ from typing import Any, Dict, Protocol
 from dependency_injector import containers, providers
 
 from licitpy.core.containers.chile import ChileContainer
+from licitpy.core.containers.europe import EuropeContainer
 from licitpy.core.downloader.adownloader import AsyncDownloader
 from licitpy.core.downloader.downloader import SyncDownloader
 from licitpy.core.enums import Country
@@ -46,10 +47,20 @@ class Container(containers.DeclarativeContainer):
         adownloader=adownloader,
     )
 
+    eu_config = providers.Configuration()
+    
+    eu = providers.Container(
+        EuropeContainer,
+        config=eu_config,
+        downloader=downloader,
+        adownloader=adownloader,
+    )
+
     country_providers: providers.Provider[Dict[Country, CountryContainerProtocol]] = (
         providers.Dict(
             {
                 Country.CL: cl,
+                Country.EU: eu,
             }
         )
     )

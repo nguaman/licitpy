@@ -10,11 +10,11 @@ from dependency_injector import containers, providers
 
 from licitpy.core.downloader.adownloader import AsyncDownloader
 from licitpy.core.downloader.downloader import SyncDownloader
-from licitpy.sources.local.adapters.cl.parser import ChileTenderParser
-from licitpy.sources.local.adapters.cl.adapter import ChileTenderAdapter
+from licitpy.sources.local.adapters.eu.parser import EuropeTenderParser
+from licitpy.sources.local.adapters.eu.adapter import EuropeTenderAdapter
 
 
-class ChileContainer(containers.DeclarativeContainer):
+class EuropeContainer(containers.DeclarativeContainer):
     """
     Manages dependencies for Chilean tender data handling.
     Provides configured instances of services like adapters and parsers.
@@ -32,13 +32,13 @@ class ChileContainer(containers.DeclarativeContainer):
     # This will be injected from a parent container.
     adownloader: providers.Dependency[AsyncDownloader] = providers.Dependency()
 
-    # Factory for ChileTenderAdapter.
-    # Creates ChileTenderAdapter instances with injected downloaders and parser.
-    tender_adapter: providers.Factory[ChileTenderAdapter] = providers.Factory(
-        ChileTenderAdapter,
+    # Factory for EuropeTenderAdapter.
+    # Creates EuropeTenderAdapter instances with injected downloaders and parser.
+    tender_adapter: providers.Factory[EuropeTenderAdapter] = providers.Factory(
+        EuropeTenderAdapter,
         downloader=downloader,  # Injects the sync downloader
         adownloader=adownloader,  # Injects the async downloader
         parser=providers.Singleton(
-            ChileTenderParser
+            EuropeTenderParser
         ),  # Injects a singleton instance of the parser
     )

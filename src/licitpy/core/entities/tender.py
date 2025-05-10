@@ -14,7 +14,8 @@ class Tender:
 
         self._url: Optional[HttpUrl] = None
         self._adapter: TenderAdapter = adapter
-
+        self._html: Optional[str] = None
+        
     def url(self) -> HttpUrl:
 
         if self._url is not None:
@@ -32,3 +33,20 @@ class Tender:
         self._url = await self._adapter.aget_tender_url(self.code)
 
         return self._url
+
+    def html(self) -> str:
+        if self._html is not None:
+            return self._html
+        
+        self._html = self._adapter.get_tender_html(self.url())
+        
+        return self._html
+    
+    async def ahtml(self) -> str:
+        if self._html is not None:
+            return self._html
+        
+        self._html = await self._adapter.aget_tender_html(self.url())
+        
+        return self._html
+    

@@ -16,20 +16,22 @@ class Local(SourceProvider):
     def __init__(
         self, country_providers: Dict[Country, CountryContainerProtocol]
     ) -> None:
-        """Initialize with the main application container."""
-        self.country_providers = country_providers
 
-    def get_tenders_by_codes(self, codes: List[str], country: Country) -> List[Tender]:
-        """
-        Get multiple tenders by their codes and country.
-        This method is not implemented yet.
-        """
-        raise NotImplementedError("This method has not been implemented yet.")
+        self.country_providers = country_providers
 
     def _get_container_for_country(self, country: Country) -> CountryContainerProtocol:
         """
-        Get the container for a specific country.
-        Raises ValueError if the country is not supported.
+        Retrieves the dependency injection container for a specific country.
+
+        Args:
+            country: The country for which to get the container.
+
+        Returns:
+            The CountryContainerProtocol for the specified country.
+
+        Raises:
+            ValueError: If the specified country is not supported (i.e., no
+                        container is configured for it).
         """
         country_container = self.country_providers.get(country)
 
@@ -40,21 +42,68 @@ class Local(SourceProvider):
 
     def _get_tender_adapter(self, country: Country) -> TenderAdapter:
         """
-        Get the tender adapter for a specific country.
-        Raises ValueError if the country is not supported.
+        Retrieves the tender adapter for a specific country.
+
+        The adapter is responsible for fetching and parsing tender data for that country.
+
+        Args:
+            country: The country for which to get the tender adapter.
+
+        Returns:
+            An instance of TenderAdapter configured for the specified country.
+
+        Raises:
+            ValueError: If the specified country is not supported.
         """
         country_container = self._get_container_for_country(country)
         return country_container.tender_adapter()
 
-    def get_tender_by_code(self, code: str, country: Country) -> Tender:
+    def get_tenders_by_codes(self, codes: List[str], country: Country) -> List[Tender]:
+        """
+        Retrieves multiple tender objects by their unique codes and country.
 
+        Note: This method is not yet implemented.
+
+        Args:
+            codes: A list of tender identification codes.
+            country: The country where the tenders are located.
+
+        Returns:
+            A list of Tender objects.
+
+        Raises:
+            NotImplementedError: This method is not yet implemented.
+        """
+        raise NotImplementedError("This method has not been implemented yet.")
+
+    def get_tender_by_code(self, code: str, country: Country) -> Tender:
+        """
+        Retrieves a single tender object by its unique code and country.
+
+        Args:
+            code: The unique identification code of the tender.
+            country: The country where the tender is located.
+
+        Returns:
+            A Tender object populated with data fetched via the country-specific adapter.
+        """
         adapter: TenderAdapter = self._get_tender_adapter(country)
         return Tender(code, country, adapter)
 
     async def aget_tender_by_code(self, code: str, country: Country) -> Tender:
+        """
+        Asynchronously retrieves a single tender object by its unique code and country.
 
+        Args:
+            code: The unique identification code of the tender.
+            country: The country where the tender is located.
+
+        Returns:
+            A Tender object populated with data fetched via the country-specific adapter.
+        """
         adapter: TenderAdapter = self._get_tender_adapter(country)
         return Tender(code, country, adapter)
+
 
     # def get_monthly_purchase_orders(
     #     self, start_date: date, end_date: date

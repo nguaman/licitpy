@@ -9,10 +9,9 @@ async def main() -> None:
     async with Licitpy(use_cache=False) as licitpy:
 
         tender = licitpy[Country.CL].get("2392-20-LR25")
-        print(tender.url())
-
-        tender = licitpy.cl.get("4099-12-LQ25")
-        print(tender.url())
+        
+        print(f"Tender Url: {tender.url()}")
+        print(f"Content Length: {len(tender.html())}")
 
         tender_codes = {
             Country.CL: [
@@ -45,10 +44,12 @@ async def main() -> None:
         for country, codes in tender_codes.items():
             tenders.extend([licitpy[country].get(code) for code in codes])
 
-        urls = await asyncio.gather(*[tender.aurl() for tender in tenders])
+        urls = await asyncio.gather(*[tender.ahtml() for tender in tenders])
 
-        for tender, url in zip(tenders, urls):
-            print(f"Country: {tender.country}, Tender Code: {tender.code}, URL: {url}")
+        for tender, html in zip(tenders, urls):
+            print(
+                f"Country: {tender.country}, Tender Code: {tender.code}, Content Length: {len(html)} {tender.url()}"
+            )
 
 
 if __name__ == "__main__":

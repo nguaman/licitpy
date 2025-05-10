@@ -56,7 +56,6 @@ class Licitpy(
         else:
             self.source = Local(country_providers=self.container.country_providers())
 
-        
         self._country_clients: Dict[Country, CountryClient] = {}
 
     async def __aenter__(self) -> "Licitpy":
@@ -90,23 +89,29 @@ class Licitpy(
         self.container.downloader().close()
         return None
 
+    def __getitem__(self, country: Country) -> CountryClient:
+        """Get the client for a specific country."""
+        if country not in self._country_clients:
+            self._country_clients[country] = CountryClient(self.source, country)
+        return self._country_clients[country]
+
     @property
     def cl(self) -> CountryClient:
         """Client for Chilean tenders."""
-        if "cl" not in self._country_clients:
+        if Country.CL not in self._country_clients:
             self._country_clients[Country.CL] = CountryClient(self.source, Country.CL)
         return self._country_clients[Country.CL]
 
     @property
     def co(self) -> CountryClient:
         """Client for Colombian tenders."""
-        if "co" not in self._country_clients:
+        if Country.CO not in self._country_clients:
             self._country_clients[Country.CO] = CountryClient(self.source, Country.CO)
         return self._country_clients[Country.CO]
 
     @property
     def eu(self) -> CountryClient:
         """Client for European tenders."""
-        if "eu" not in self._country_clients:
+        if Country.EU not in self._country_clients:
             self._country_clients[Country.EU] = CountryClient(self.source, Country.EU)
         return self._country_clients[Country.EU]

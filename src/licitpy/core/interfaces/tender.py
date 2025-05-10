@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from pydantic import HttpUrl
 
 
+
 class TenderAdapter(ABC):
     """
     Abstract base class for tender data providers.
@@ -17,31 +18,12 @@ class TenderAdapter(ABC):
     async def aget_tender_url(self, code: str) -> HttpUrl:
         pass
 
-    # @abstractmethod
-    # def get_tender_html(self, tender: Tender) -> str:
-    #     """
-    #     Get the HTML content for a specific tender using synchronous HTTP.
+    @abstractmethod
+    def get_tender_html(self, url: HttpUrl) -> str:
+        pass
 
-    #     Args:
-    #         tender: The tender entity to get HTML for
+    @abstractmethod
+    async def aget_tender_html(self, url: HttpUrl) -> str:
+        pass
+    
 
-    #     Returns:
-    #         str: The HTML content
-    #     """
-    #     pass
-
-    # @abstractmethod
-    # async def get_tender_html_async(
-    #     self, tender: Tender, session: ClientSession
-    # ) -> str:
-    #     """
-    #     Get the HTML content for a specific tender using asynchronous HTTP.
-
-    #     Args:
-    #         tender: The tender entity to get HTML for
-    #         session: The shared HTTP session to use
-
-    #     Returns:
-    #         str: The HTML content
-    #     """
-    #     pass
