@@ -10,8 +10,8 @@ from dependency_injector import containers, providers
 
 from licitpy.core.downloader.adownloader import AsyncDownloader
 from licitpy.core.downloader.downloader import SyncDownloader
-from licitpy.sources.local.adapters.eu.parser import EuropeTenderParser
 from licitpy.sources.local.adapters.eu.adapter import EuropeTenderAdapter
+from licitpy.sources.local.adapters.eu.parser import EuropeTenderParser
 
 
 class EuropeContainer(containers.DeclarativeContainer):

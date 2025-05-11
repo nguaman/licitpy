@@ -6,6 +6,7 @@ which orchestrates all services and their dependencies.
 """
 
 from typing import Any, Dict, Protocol
+
 from dependency_injector import containers, providers
 
 from licitpy.core.containers.chile import ChileContainer
@@ -48,7 +49,7 @@ class Container(containers.DeclarativeContainer):
     )
 
     eu_config = providers.Configuration()
-    
+
     eu = providers.Container(
         EuropeContainer,
         config=eu_config,

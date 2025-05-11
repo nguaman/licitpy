@@ -1,15 +1,14 @@
-from contextlib import AbstractContextManager, AbstractAsyncContextManager
+from contextlib import AbstractAsyncContextManager, AbstractContextManager
 from datetime import timedelta
-from typing import Dict, List, Optional, Type, Union
 from types import TracebackType
+from typing import Dict, List, Optional, Type, Union
 
 from licitpy.core.containers.container import Container
-
-from licitpy.sources.api.source import API
-from licitpy.sources.local.source import Local
 from licitpy.core.entities.tender import Tender
 from licitpy.core.enums import Country
 from licitpy.core.query import TenderQuery
+from licitpy.sources.api.source import API
+from licitpy.sources.local.source import Local
 
 
 class CountryClient:
@@ -101,13 +100,6 @@ class Licitpy(
         if Country.CL not in self._country_clients:
             self._country_clients[Country.CL] = CountryClient(self.source, Country.CL)
         return self._country_clients[Country.CL]
-
-    @property
-    def co(self) -> CountryClient:
-        """Client for Colombian tenders."""
-        if Country.CO not in self._country_clients:
-            self._country_clients[Country.CO] = CountryClient(self.source, Country.CO)
-        return self._country_clients[Country.CO]
 
     @property
     def eu(self) -> CountryClient:

@@ -1,4 +1,5 @@
-from typing import Dict, List
+from datetime import date, datetime
+from typing import Any, AsyncIterable, AsyncIterator, Dict, Iterable, Iterator, List
 
 from licitpy.core.containers.container import CountryContainerProtocol
 from licitpy.core.entities.tender import Tender
@@ -58,23 +59,10 @@ class Local(SourceProvider):
         country_container = self._get_container_for_country(country)
         return country_container.tender_adapter()
 
-    def get_tenders_by_codes(self, codes: List[str], country: Country) -> List[Tender]:
-        """
-        Retrieves multiple tender objects by their unique codes and country.
-
-        Note: This method is not yet implemented.
-
-        Args:
-            codes: A list of tender identification codes.
-            country: The country where the tenders are located.
-
-        Returns:
-            A list of Tender objects.
-
-        Raises:
-            NotImplementedError: This method is not yet implemented.
-        """
-        raise NotImplementedError("This method has not been implemented yet.")
+    def get_tenders_by_codes(self, code: List[str], country: Country) -> List[Tender]:
+        raise NotImplementedError(
+            "get_tenders_by_codes is not implemented in Local source provider."
+        )
 
     def get_tender_by_code(self, code: str, country: Country) -> Tender:
         """
@@ -104,6 +92,74 @@ class Local(SourceProvider):
         adapter: TenderAdapter = self._get_tender_adapter(country)
         return Tender(code, country, adapter)
 
+    async def afind_tenders(
+        self, country: Country, filters: Dict[str, Any] = {}
+    ) -> AsyncIterable[Tender]:
+
+        # Select the country container based on the provided country
+        adapter: TenderAdapter = self._get_tender_adapter(country)
+
+        # If 'publication_on_date' is not explicitly provided in filters,
+        # it defaults to the current day.
+        publication_on_date: date = filters.get("publication_on_date", date.today())
+
+        # If 'limit' is not explicitly provided in filters,
+        # it defaults to None (no limit).
+        limit = filters.get("limit", None)
+
+        # Retrieve base tender codes by publication date.
+        # These codes will serve as the initial set for subsequent filtering.
+        codes: AsyncIterator[str] = adapter.aget_tenders_from_date(
+            publication_on_date.year,
+            publication_on_date.month,
+            publication_on_date.day,
+        )
+
+        counter = 0
+        async for code in codes:
+
+            if limit is not None and counter >= limit:
+                break
+
+            # If a code passes all applied filters, a Tender object is yielded immediately.
+            yield Tender(code, country, adapter)
+
+            counter += 1
+
+    def find_tenders(
+        self, country: Country, filters: Dict[str, Any] = {}
+    ) -> Iterable[Tender]:
+
+        # Select the country container based on the provided country
+        adapter: TenderAdapter = self._get_tender_adapter(country)
+
+        # If 'publication_on_date' is not explicitly provided in filters,
+        # it defaults to the current day.
+        publication_on_date: date = filters.get("publication_on_date", date.today())
+
+        # If 'limit' is not explicitly provided in filters,
+        # it defaults to None (no limit).
+        limit = filters.get("limit", None)
+
+        # Retrieve base tender codes by publication date.
+        # These codes will serve as the initial set for subsequent filtering.
+        codes: Iterator[str] = adapter.get_tenders_from_date(
+            publication_on_date.year,
+            publication_on_date.month,
+            publication_on_date.day,
+        )
+
+        # Iterate through the retrieved codes.
+        # If a code passes all applied filters a Tender object is yielded immediately.
+        counter = 0
+        for code in codes:
+
+            if limit is not None and counter >= limit:
+                break
+
+            yield Tender(code, country, adapter)
+
+            counter += 1
 
     # def get_monthly_purchase_orders(
     #     self, start_date: date, end_date: date

@@ -9,7 +9,7 @@ async def main() -> None:
     async with Licitpy(use_cache=False) as licitpy:
 
         tender = licitpy[Country.CL].get("2392-20-LR25")
-        
+
         print(f"Tender Url: {tender.url()}")
         print(f"Content Length: {len(tender.html())}")
 

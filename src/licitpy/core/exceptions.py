@@ -26,3 +26,24 @@ class UnsupportedCountryError(LicitpyError):
     """Error when a requested country code is not supported."""
 
     pass
+
+
+class ElementNotFoundException(Exception):
+    """Exception raised when an HTML element is not found."""
+
+    pass
+
+
+class NonBusinessDayError(ValueError):
+    """Raised when attempting to query for tenders on weekends or holidays."""
+
+    pass
+
+
+class InvalidTenderDataException(Exception):
+    """
+    Exception raised when Open Contracting Data Standard (OCDS) response data
+    is missing required fields or has structural issues that prevent proper processing.
+    """
+
+    pass

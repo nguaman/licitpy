@@ -9,4 +9,3 @@ class Country(Enum):
 
     CL = "cl"  # Chile
     EU = "eu"  # European Union
-    CO = "co"  # Colombia

@@ -1,7 +1,9 @@
+import base64
 from datetime import timedelta
-from requests import Session
-from requests_cache import CachedSession
 
+from pydantic import HttpUrl
+from requests import Response, Session
+from requests_cache import CachedSession
 
 
 class SyncDownloader:
@@ -10,8 +12,8 @@ class SyncDownloader:
     def __init__(self, use_cache: bool, cache_expire_after: timedelta) -> None:
         """
         Initialize the downloader and create the session immediately.
-        
-        Unlike async resources that should be explicitly opened/closed, 
+
+        Unlike async resources that should be explicitly opened/closed,
         sync resources can be safely initialized at creation time.
         """
         self._use_cache = use_cache
@@ -44,11 +46,11 @@ class SyncDownloader:
     def open(self) -> None:
         """
         No-op method to maintain API consistency with AsyncDownloader.
-        
+
         This method exists to provide a consistent interface between sync and async
         resources, even though sync resources are initialized in __init__.
-        
-        This pattern allows the public API to be consistent: both sync and async 
+
+        This pattern allows the public API to be consistent: both sync and async
         versions can be used with the same pattern (`downloader.open()`), which
         simplifies usage and maintains compatibility with context managers.
         """
@@ -58,3 +60,18 @@ class SyncDownloader:
         """Closes the synchronous session."""
         if self.session:
             self.session.close()
+
+    def download_file_to_base64(self, url: HttpUrl) -> str:
+
+        response = self.session.get(str(url), stream=True)
+        response.raise_for_status()
+
+        file_content = bytearray()
+
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                file_content.extend(chunk)
+
+        base64_content = base64.b64encode(file_content).decode("utf-8")
+
+        return base64_content

@@ -1,4 +1,6 @@
+import base64
 from datetime import timedelta
+from typing import Any, Dict
 
 from aiohttp import ClientSession
 from aiohttp_client_cache import CachedSession, SQLiteBackend
@@ -10,7 +12,7 @@ class AsyncDownloader:
     def __init__(self, use_cache: bool, cache_expire_after: timedelta) -> None:
         """
         Initialize configuration but don't create the session yet.
-        
+
         Unlike sync resources, async resources should be explicitly opened/closed
         using async methods, as they often require event loop integration.
         The actual session is created in the open() method.
@@ -31,12 +33,12 @@ class AsyncDownloader:
     async def open(self) -> None:
         """
         Initializes the async session if it is not already open.
-        
+
         Unlike the sync version where session creation happens in __init__,
         async resources require explicit opening so they can be properly
         integrated with the event loop.
         """
-        
+
         # Early return if already open
         if self._is_open:
             return

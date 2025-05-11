@@ -1,28 +1,21 @@
 from pydantic import HttpUrl
-from licitpy.core.interfaces.tender import TenderAdapter
+
 from licitpy.core.downloader.adownloader import AsyncDownloader
 from licitpy.core.downloader.downloader import SyncDownloader
-from licitpy.core.parser.parser import BaseParser
+from licitpy.core.interfaces.tender import TenderAdapter
 
 
 class BaseLocalTenderAdapter(TenderAdapter):
-    def __init__(
-        self,
-        downloader: SyncDownloader,
-        adownloader: AsyncDownloader,
-        parser: BaseParser,
-    ):
+    def __init__(self, downloader: SyncDownloader, adownloader: AsyncDownloader):
         """
         Initializes the BaseLocalTenderAdapter.
 
         Args:
             downloader: The synchronous HTTP downloader.
             adownloader: The asynchronous HTTP downloader.
-            parser: The parser for tender data (type can be refined).
         """
         self.downloader = downloader
         self.adownloader = adownloader
-        self.parser = parser
 
     def get_tender_html(self, url: HttpUrl) -> str:
         """
@@ -31,7 +24,7 @@ class BaseLocalTenderAdapter(TenderAdapter):
         session = self.downloader.session
         response = session.get(str(url), timeout=30)
         response.raise_for_status()
-        
+
         return response.text
 
     async def aget_tender_html(self, url: HttpUrl) -> str:
@@ -41,5 +34,5 @@ class BaseLocalTenderAdapter(TenderAdapter):
         session = self.adownloader.session
         async with session.get(str(url), timeout=30) as response:
             response.raise_for_status()
-            
+
             return await response.text()

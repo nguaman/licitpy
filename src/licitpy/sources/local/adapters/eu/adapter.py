@@ -5,7 +5,6 @@ from licitpy.core.downloader.downloader import SyncDownloader
 from licitpy.sources.local.adapters.base import BaseLocalTenderAdapter
 from licitpy.sources.local.adapters.eu.parser import EuropeTenderParser
 
-
 # - Fair Usage: https://ted.europa.eu/en/news/fair-usage-policy-on-ted
 
 

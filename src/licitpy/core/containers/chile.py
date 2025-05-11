@@ -10,8 +10,11 @@ from dependency_injector import containers, providers
 
 from licitpy.core.downloader.adownloader import AsyncDownloader
 from licitpy.core.downloader.downloader import SyncDownloader
-from licitpy.sources.local.adapters.cl.parser import ChileTenderParser
 from licitpy.sources.local.adapters.cl.adapter import ChileTenderAdapter
+from licitpy.sources.local.adapters.cl.parser import ChileTenderParser
+from licitpy.sources.local.adapters.cl.services.tender_aggregator import (
+    ChileanTenderAggregatorService,
+)
 
 
 class ChileContainer(containers.DeclarativeContainer):
@@ -32,13 +35,22 @@ class ChileContainer(containers.DeclarativeContainer):
     # This will be injected from a parent container.
     adownloader: providers.Dependency[AsyncDownloader] = providers.Dependency()
 
+    # Service for aggregating tender data from multiple Chilean sources (e.g., CSV, API).
+    # It consolidates and deduplicates tender information for initial queries.
+    tender_aggregator: providers.Singleton[ChileanTenderAggregatorService] = (
+        providers.Singleton(
+            ChileanTenderAggregatorService,
+            downloader=downloader,
+            adownloader=adownloader,
+        )
+    )
+
     # Factory for ChileTenderAdapter.
     # Creates ChileTenderAdapter instances with injected downloaders and parser.
     tender_adapter: providers.Factory[ChileTenderAdapter] = providers.Factory(
         ChileTenderAdapter,
-        downloader=downloader,  # Injects the sync downloader
-        adownloader=adownloader,  # Injects the async downloader
-        parser=providers.Singleton(
-            ChileTenderParser
-        ),  # Injects a singleton instance of the parser
+        downloader=downloader,
+        adownloader=adownloader,
+        parser=providers.Singleton(ChileTenderParser),
+        data=tender_aggregator,
     )
