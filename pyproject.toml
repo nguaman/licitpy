@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "licitpy"
-version = "1.1.0"
+version = "1.0.1"
 description = "LicitPy: A Python toolbox designed for downloading, parsing, and analyzing public tenders from Chile's Mercado Público."
 authors = ["Nelson Guamán"]
 license = "Apache-2.0"
@@ -86,3 +86,4 @@ disallow_any_generics = true
 [tool.commitizen]
 changelog_file = "CHANGELOG.md"
 version_provider = "poetry"
+tag_format = "v$version"
