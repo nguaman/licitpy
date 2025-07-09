@@ -84,4 +84,5 @@ disallow_untyped_decorators = true
 disallow_any_generics = true
 
 [tool.commitizen]
+changelog_file = "CHANGELOG.md"
 version_provider = "poetry"
