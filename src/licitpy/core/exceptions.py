@@ -1,49 +1,30 @@
-class LicitpyError(Exception):
-    """Base exception for all licitpy errors."""
-
-    pass
-
-
-class FetchError(LicitpyError):
-    """Error during data fetching (network, HTTP error)."""
-
-    pass
-
-
-class ParsingError(LicitpyError):
-    """Error during data parsing or mapping."""
-
-    pass
-
-
-class TenderNotFoundError(FetchError):
-    """Specific error when a tender ID is not found."""
-
-    pass
-
-
-class UnsupportedCountryError(LicitpyError):
-    """Error when a requested country code is not supported."""
-
-    pass
-
-
 class ElementNotFoundException(Exception):
-    """Exception raised when an HTML element is not found."""
-
-    pass
+    """Raised when an HTML element with a specific ID is not found."""
 
 
-class NonBusinessDayError(ValueError):
-    """Raised when attempting to query for tenders on weekends or holidays."""
-
-    pass
+class ElementAttributeNotFoundException(Exception):
+    """Raised when an attribute is not found in an HTML element."""
 
 
-class InvalidTenderDataException(Exception):
-    """
-    Exception raised when Open Contracting Data Standard (OCDS) response data
-    is missing required fields or has structural issues that prevent proper processing.
-    """
+class AttachmentTableNotFoundError(Exception):
+    """Raised when the attachments table is not found in the HTML."""
 
-    pass
+
+class AttachmentTableRowsNotFoundError(Exception):
+    """Raised when no rows are found in the attachments table."""
+
+
+class AttachmentSizeFormatError(Exception):
+    """Raised when the attachment size format is invalid."""
+
+
+class AttachmentIdNotFoundError(Exception):
+    """Raised when the attachment ID is not found."""
+
+
+class AttachmentNameNotFoundError(Exception):
+    """Raised when the attachment name is not found."""
+
+
+class AttachmentDownloadError(Exception):
+    """Raised when an attachment could not be downloaded or saved."""

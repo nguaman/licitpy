@@ -2,14 +2,15 @@ import lxml.html
 from lxml.etree import ParserError, XMLSyntaxError
 from lxml.html import HtmlElement
 
-from licitpy.core.exceptions import ElementNotFoundException
+from licitpy.core.exceptions import (
+    ElementAttributeNotFoundException,
+    ElementNotFoundException,
+)
 
 
 class BaseParser:
-
     def get_html_element(self, html: str) -> HtmlElement:
         try:
-
             element = lxml.html.fromstring(html)
             return element
 
@@ -53,7 +54,7 @@ class BaseParser:
         attribute_elements = html_element[0].xpath(f".//{attribute}")
 
         if not attribute_elements:
-            raise ElementNotFoundException(
+            raise ElementAttributeNotFoundException(
                 f"Element with ID '{element_id}' has no attribute '{attribute}'"
             )
 
@@ -95,3 +96,10 @@ class BaseParser:
         """
 
         return self.get_attribute_by_element_id(html, element_id, "@value")
+
+    def get_view_state(self, html: str) -> str:
+        """
+        Get the __VIEWSTATE value from the HTML content.
+        """
+
+        return self.get_value_by_element_id(html, "__VIEWSTATE")

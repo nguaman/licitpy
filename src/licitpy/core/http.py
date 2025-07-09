@@ -1,15 +1,15 @@
-import base64
 from datetime import timedelta
-from typing import Any, Dict
 
 from aiohttp import ClientSession
 from aiohttp_client_cache import CachedSession, SQLiteBackend
 
 
-class AsyncDownloader:
+class AsyncHttpClient:
     """Handles asynchronous HTTP requests with optional caching."""
 
-    def __init__(self, use_cache: bool, cache_expire_after: timedelta) -> None:
+    def __init__(
+        self, use_cache: bool = True, cache_expire_after: timedelta = timedelta(hours=1)
+    ) -> None:
         """
         Initialize configuration but don't create the session yet.
 
@@ -50,6 +50,7 @@ class AsyncDownloader:
                     cache_name="licitpy_async", expire_after=self._cache_expire_after
                 ),
                 headers=self.headers,
+                allowed_codes=[200],
             )
         else:
             self._session = ClientSession(headers=self.headers)
@@ -62,8 +63,9 @@ class AsyncDownloader:
         """Returns the active async session, raising an error if not open."""
         if not self._is_open or self._session is None:
             raise RuntimeError(
-                "AsyncDownloader session not open. "
-                "Ensure Licitpy is used within an 'async with' block or 'await licitpy.open()' was called."
+                "HTTP session not initialized. Use one of these options:\n"
+                "1. Context manager: 'async with Licitpy() as client:'\n"
+                "2. Manual init: 'await client.ensure_open()'"
             )
         return self._session
 
@@ -72,3 +74,7 @@ class AsyncDownloader:
         if self._session and not self._session.closed:
             await self._session.close()
             self._is_open = False
+
+    async def get_html_by_url(self, url: str) -> str:
+        async with self.session.get(url) as response:
+            return await response.text()
