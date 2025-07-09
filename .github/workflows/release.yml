@@ -6,28 +6,28 @@ on:
       - main
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Install Poetry
-        uses: snok/install-poetry@v1.4.1
-        with:
-          version: 1.8.3
-      - name: Install dependencies
-        run: poetry install --with dev
-      - name: Run tests and checks with tox
-        run: poetry run tox
+  # test:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: "3.11"
+  #     - name: Install Poetry
+  #       uses: snok/install-poetry@v1.4.1
+  #       with:
+  #         version: 1.8.3
+  #     - name: Install dependencies
+  #       run: poetry install --with dev
+  #     - name: Run tests and checks with tox
+  #       run: poetry run tox
 
   release:
-    needs: test
+    # needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

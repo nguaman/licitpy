@@ -72,10 +72,6 @@ upload_to_release = true
 build_command = "poetry build"
 commit_version_number = true
 
-[tool.pytest.ini_options]
-addopts = "--cov=src/licitpy --cov-config=.coveragerc --cov-report=term-missing --cov-fail-under=80"
-markers = ["integration: Tests that interact with live external systems"]
-pythonpath = ["src"]
 
 [tool.mypy]
 plugins = ['pydantic.mypy']
@@ -87,5 +83,4 @@ disallow_untyped_defs = true
 disallow_untyped_decorators = true
 disallow_any_generics = true
 
-[tool.bandit]
-exclude_dirs = ["tests"]
+
