@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v1.0.5 (2025-07-13)
+
+### Bug Fixes
+
+- Remove unnecessary content from README.md
+  ([`22f3a22`](https://github.com/nguaman/licitpy/commit/22f3a220396e38048f8230c9e381e7f4a135ae10))
+
+### Refactoring
+
+- Reorganize file types in enums and enhance exception handling for attachments
+  ([`9477d13`](https://github.com/nguaman/licitpy/commit/9477d134175a04417dc9ae890947c4dddbae8a11))
+
+
 ## v1.0.4 (2025-07-13)
 
 ### Bug Fixes
