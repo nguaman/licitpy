@@ -3,13 +3,14 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from licitpy.core.enums import Attachment
+from licitpy.core.exceptions import AttachmentUrlHashNotFound
 from licitpy.core.parser.attachments import AttachmentParser
 from licitpy.core.parser.base import BaseParser
 
 
 class ChileTenderParser(BaseParser):
     def __init__(self) -> None:
-        self._attachment = AttachmentParser()
+        self.attachment = AttachmentParser()
 
     def get_attachment_url(self, html: str) -> str:
         """
@@ -21,15 +22,20 @@ class ChileTenderParser(BaseParser):
         url_match = re.search(r"ViewAttachment\.aspx\?enc=(.*)','", attachment_url)
 
         if not url_match:
-            raise ValueError("Attachment URL hash not found")
+            raise AttachmentUrlHashNotFound("Attachment URL hash not found")
 
         enc: str = url_match.group(1)
-        url = f"https://www.mercadopublico.cl/Procurement/Modules/Attachment/ViewAttachment.aspx?enc={enc}"
 
-        return url
+        if not enc:
+            raise AttachmentUrlHashNotFound("Attachment URL hash is empty")
+
+        return f"https://www.mercadopublico.cl/Procurement/Modules/Attachment/ViewAttachment.aspx?enc={enc}"
 
     def get_attachments(self, html: str) -> list[Attachment]:
-        return self._attachment.get_attachments(html)
+        """
+        Get a list of attachments from the HTML content.
+        """
+        return self.attachment.get_attachments(html)
 
     def get_opening_date(self, html: str) -> datetime:
         """
@@ -44,6 +50,10 @@ class ChileTenderParser(BaseParser):
         )
 
     def get_closing_date_from_eligibility(self, html: str) -> datetime:
+        """
+        Get the closing date for the eligibility phase from the HTML content.
+        """
+
         # Extract the closing date for the eligibility phase (idoneidad técnica).
         # This date marks the final deadline for all participants to submit their initial technical eligibility documents.
         # After this point, only participants who meet the technical requirements can proceed.
@@ -59,6 +69,10 @@ class ChileTenderParser(BaseParser):
         )
 
     def get_closing_date(self, html: str) -> datetime:
+        """
+        Get the closing date of a tender from its HTML content.
+        """
+
         # Check if the eligibility closing date (idoneidad técnica) exists in the HTML.
         # If lblFicha3CierreIdoneidad exists, it indicates that the process includes an eligibility phase.
         # In such cases, the usual closing date element (lblFicha3Cierre) contains a string like
@@ -81,4 +95,7 @@ class ChileTenderParser(BaseParser):
         )
 
     def get_title(self, html: str) -> str:
+        """
+        Get the title of a tender from its HTML content.
+        """
         return self.get_text_by_element_id(html, "lblNombreLicitacion")

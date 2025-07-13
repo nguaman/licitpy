@@ -5,20 +5,20 @@ from pydantic import BaseModel, PrivateAttr
 
 
 class FileType(Enum):
-    PDF = "pdf"
-    XLSX = "xlsx"
-    DOCX = "docx"
     DOC = "doc"
-    ZIP = "zip"
-    KMZ = "kmz"
-    JPG = "jpg"
-    RTF = "rtf"
-    RAR = "rar"
+    DOCX = "docx"
     DWG = "dwg"
-    XLS = "xls"
-    PNG = "png"
-    ODT = "odt"
     JPEG = "jpeg"
+    JPG = "jpg"
+    KMZ = "kmz"
+    ODT = "odt"
+    PDF = "pdf"
+    PNG = "png"
+    RAR = "rar"
+    RTF = "rtf"
+    XLS = "xls"
+    XLSX = "xlsx"
+    ZIP = "zip"
 
 
 class ContentStatus(Enum):

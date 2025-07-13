@@ -28,3 +28,7 @@ class AttachmentNameNotFoundError(Exception):
 
 class AttachmentDownloadError(Exception):
     """Raised when an attachment could not be downloaded or saved."""
+
+
+class AttachmentUrlHashNotFound(Exception):
+    """Raised when the attachment URL hash is not found or is empty in the HTML content."""

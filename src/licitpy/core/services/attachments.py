@@ -20,6 +20,11 @@ class AttachmentServices:
         self._parser: AttachmentParser = parser or AttachmentParser()
 
     async def get_attachments(self, url: str, html: str) -> list[Attachment]:
+        """
+        Extracts attachments from the provided HTML content and prepares them for download.
+        Each attachment will have a download function that can be called to retrieve its content.
+        """
+
         attachments: list[Attachment] = self._parser.get_attachments(html)
 
         for attachment in attachments:
@@ -72,6 +77,11 @@ class AttachmentServices:
         file_size: int,
         file_name: str,
     ) -> str:
+        """
+        Downloads the file content from the response and encodes it in base64.
+        This function reads the file in chunks to handle large files efficiently.
+        """
+        
         file_content = bytearray()
 
         with tqdm(
