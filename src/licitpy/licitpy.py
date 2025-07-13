@@ -13,7 +13,8 @@ class Licitpy:
         cache_expire_after: timedelta = timedelta(hours=1),
     ):
         self._downloader = AsyncHttpClient(
-            use_cache=use_cache, cache_expire_after=cache_expire_after
+            use_cache=use_cache,
+            cache_expire_after=cache_expire_after,
         )
 
         # Currently only CLProvider is implemented

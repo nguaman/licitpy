@@ -1,3 +1,4 @@
+from urllib.parse import urljoin
 from licitpy.core.http import AsyncHttpClient
 from licitpy.core.models import Tender
 from licitpy.core.provider.tender import BaseTenderProvider
@@ -20,13 +21,26 @@ class ChileProvider(BaseTenderProvider):
         self.attachment = attachment or AttachmentServices(downloader=self.downloader)
 
     async def get_url_by_code(self, code: str) -> str:
+        """
+        Retrieve the full URL for a tender based on its code.
+
+        This method constructs the initial URL using the tender code, sends a HEAD request
+        to check for redirection, and returns the final resolved URL.
+
+        Args:
+            code (str): The unique identifier for the tender.
+
+        Returns:
+            str: The resolved URL pointing to the tender details.
+        """
+        
         url = f"{self.BASE_URL}/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion={code}"
 
         response = await self.downloader.session.head(
             url, timeout=30, allow_redirects=False
         )
 
-        return f"{self.BASE_URL}{response.headers['Location']}"
+        return urljoin(self.BASE_URL, response.headers["Location"])
 
     async def get_by_code(self, code: str) -> Tender:
         url = await self.get_url_by_code(code)
