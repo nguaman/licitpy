@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.0.4 (2025-07-13)
+
+### Bug Fixes
+
+- Improve URL handling and add error checks in attachment saving
+  ([`ecd1cd2`](https://github.com/nguaman/licitpy/commit/ecd1cd2bbf60932b11a195b6033acd5fc323f1a4))
+
+
 ## v1.0.3 (2025-07-09)
 
 ### Bug Fixes
