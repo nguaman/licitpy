@@ -12,6 +12,8 @@ from licitpy.core.exceptions import (
 )
 from licitpy.core.parser.base import BaseParser
 
+# TODO: This should go in Chile since it is exclusive to Chile.
+
 
 class AttachmentParser(BaseParser):
     def get_table_attachments(self, html: str) -> HtmlElement:

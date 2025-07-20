@@ -3,7 +3,8 @@ from types import TracebackType
 from typing import Optional, Type
 
 from licitpy.core.http import AsyncHttpClient
-from licitpy.countries.cl.provider import ChileProvider
+from licitpy.countries.cl.provider import MercadoPublicoChileProvider
+from licitpy.countries.eu.provider import EUTenderProvider
 
 
 class Licitpy:
@@ -12,17 +13,17 @@ class Licitpy:
         use_cache: bool = True,
         cache_expire_after: timedelta = timedelta(hours=1),
     ):
-        self._downloader = AsyncHttpClient(
+        self.downloader = AsyncHttpClient(
             use_cache=use_cache,
             cache_expire_after=cache_expire_after,
         )
 
-        # Currently only CLProvider is implemented
-        self._cl_provider: Optional[ChileProvider] = None
+        self._cl_provider: Optional[MercadoPublicoChileProvider] = None
+        self._eu_provider: Optional[EUTenderProvider] = None
 
     async def __aenter__(self) -> "Licitpy":
         """Async context manager entry point."""
-        await self._downloader.open()
+        await self.downloader.open()
         return self
 
     async def __aexit__(
@@ -32,12 +33,20 @@ class Licitpy:
         traceback: Optional[TracebackType],
     ) -> None:
         """Closes async resources when exiting an async context."""
-        await self._downloader.close()
+        await self.downloader.close()
 
     @property
-    def cl(self) -> ChileProvider:
-        """Lazy property para el provider de Chile."""
+    def cl(self) -> MercadoPublicoChileProvider:
+        """Lazy property for the Chile tender provider."""
         if self._cl_provider is None:
-            self._cl_provider = ChileProvider(self._downloader)
+            self._cl_provider = MercadoPublicoChileProvider(self.downloader)
 
         return self._cl_provider
+
+    @property
+    def eu(self) -> EUTenderProvider:
+        """Lazy property for the EU tender provider."""
+        if self._eu_provider is None:
+            self._eu_provider = EUTenderProvider(self.downloader)
+
+        return self._eu_provider

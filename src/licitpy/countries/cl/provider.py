@@ -1,22 +1,23 @@
 from urllib.parse import urljoin
-from licitpy.core.http import AsyncHttpClient
+
 from licitpy.core.models import Tender
 from licitpy.core.provider.tender import BaseTenderProvider
 from licitpy.core.services.attachments import AttachmentServices
+from licitpy.countries.cl.downloader import CLTenderDownloader
 from licitpy.countries.cl.parser import ChileTenderParser
 
 
-class ChileProvider(BaseTenderProvider):
+class MercadoPublicoChileProvider(BaseTenderProvider):
     name = "cl"
     BASE_URL = "https://www.mercadopublico.cl"
 
     def __init__(
         self,
-        downloader: AsyncHttpClient | None = None,
+        downloader: CLTenderDownloader | None = None,
         parser: ChileTenderParser | None = None,
         attachment: AttachmentServices | None = None,
     ) -> None:
-        self.downloader = downloader or AsyncHttpClient()
+        self.downloader = downloader or CLTenderDownloader()
         self.parser = parser or ChileTenderParser()
         self.attachment = attachment or AttachmentServices(downloader=self.downloader)
 
@@ -33,7 +34,7 @@ class ChileProvider(BaseTenderProvider):
         Returns:
             str: The resolved URL pointing to the tender details.
         """
-        
+
         url = f"{self.BASE_URL}/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion={code}"
 
         response = await self.downloader.session.head(

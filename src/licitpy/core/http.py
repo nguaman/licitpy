@@ -1,5 +1,7 @@
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
+import aiofiles
 from aiohttp import ClientSession
 from aiohttp_client_cache import CachedSession, SQLiteBackend
 
@@ -78,3 +80,33 @@ class AsyncHttpClient:
     async def get_html_by_url(self, url: str) -> str:
         async with self.session.get(url) as response:
             return await response.text()
+
+    async def download_file(self, url: str, file_name: str) -> dict:
+        """
+        Downloads a file from the given URL and saves it with the specified file name.
+        Returns the path to the downloaded file.
+        """
+
+        # Defines the download directory relative to the current directory
+        download_dir = Path.cwd() / "downloads/eu"
+        download_dir.mkdir(parents=True, exist_ok=True)
+
+        # Define the full file path
+        file_path = download_dir / file_name
+
+        async with self.session.get(url) as response:
+            if response.status != 200:
+                raise Exception(f"Failed to download file: {response.status}")
+
+            async with aiofiles.open(file_path, "wb") as f:
+                content = await response.read()
+                await f.write(content)
+
+        return {
+            "file_name": file_name,
+            "status": response.status,
+            "file_size": len(content) / (1024 * 1024),  # Size in MB
+            "url": url,
+            "success": response.status == 200,
+            "file_date": datetime.now(timezone.utc).isoformat(),
+        }

@@ -10,6 +10,7 @@ from licitpy.core.http import AsyncHttpClient
 from licitpy.core.parser.attachments import AttachmentParser
 
 
+# TODO: this should go in Chile
 class AttachmentServices:
     def __init__(
         self,
@@ -54,7 +55,7 @@ class AttachmentServices:
         # this request should be made without the cache
         html = await self._downloader.get_html_by_url(url)
 
-        response = await self._downloader.session.post(
+        response: ClientResponse = await self._downloader.session.post(
             url,
             data={
                 "__EVENTTARGET": "",
@@ -81,7 +82,7 @@ class AttachmentServices:
         Downloads the file content from the response and encodes it in base64.
         This function reads the file in chunks to handle large files efficiently.
         """
-        
+
         file_content = bytearray()
 
         with tqdm(
