@@ -2,6 +2,22 @@
 
 <!-- version list -->
 
+## v1.1.0 (2025-07-20)
+
+### Chores
+
+- Remove deprecated example script for fetching tender details
+  ([`bc06aea`](https://github.com/nguaman/licitpy/commit/bc06aeaf290dba7c0b5f3c921bf326bbbce51a98))
+
+### Features
+
+- Add example script for downloading bulk files from EU
+  ([`7d8dc49`](https://github.com/nguaman/licitpy/commit/7d8dc499d643b7537445c1004670316a9f19ae61))
+
+- Add get_by_code example script for fetching tender details
+  ([`a4ecc2d`](https://github.com/nguaman/licitpy/commit/a4ecc2de92c68379eda3c7b3057d638dca379e10))
+
+
 ## v1.0.5 (2025-07-13)
 
 ### Bug Fixes
