@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.4.0 (2025-08-05)
+
+### Features
+
+- Enhance downloader functionality and improve error handling for EU tenders
+  ([`7fd6b1b`](https://github.com/nguaman/licitpy/commit/7fd6b1bd163c04cf5f85b052318cb288631604f8))
+
+
 ## v1.3.0 (2025-07-20)
 
 
