@@ -81,7 +81,9 @@ class AsyncHttpClient:
         async with self.session.get(url) as response:
             return await response.text()
 
-    async def download_file(self, url: str, file_name: str) -> dict:
+    async def download_file(
+        self, url: str, file_name: str
+    ) -> dict[str, str | int | float]:
         """
         Downloads a file from the given URL and saves it with the specified file name.
         Returns the path to the downloaded file.

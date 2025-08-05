@@ -3012,6 +3012,30 @@ slack = ["slack-sdk"]
 telegram = ["requests"]
 
 [[package]]
+name = "types-aiofiles"
+version = "24.1.0.20250801"
+description = "Typing stubs for aiofiles"
+optional = false
+python-versions = ">=3.9"
+groups = ["dev"]
+files = [
+    {file = "types_aiofiles-24.1.0.20250801-py3-none-any.whl", hash = "sha256:0f3bdb3384ae5b3425644a2e56e414b7c2791b23079e639a2c2914b0b85c3ecf"},
+    {file = "types_aiofiles-24.1.0.20250801.tar.gz", hash = "sha256:050d85e662eba7be4dd2a66a7d6ccd4ff779a3a89361603393ed16ba30d12457"},
+]
+
+[[package]]
+name = "types-dateparser"
+version = "1.2.2.20250627"
+description = "Typing stubs for dateparser"
+optional = false
+python-versions = ">=3.9"
+groups = ["dev"]
+files = [
+    {file = "types_dateparser-1.2.2.20250627-py3-none-any.whl", hash = "sha256:47fa841640e9e2d96ea69b7debf90423f9506429eb75035d50e3e58b898b71fc"},
+    {file = "types_dateparser-1.2.2.20250627.tar.gz", hash = "sha256:4435d920755c00176d60ed18d44aefa3501d0219b6caff3ea4a26c928c7df0e0"},
+]
+
+[[package]]
 name = "types-html5lib"
 version = "1.1.11.20250708"
 description = "Typing stubs for html5lib"
@@ -3469,4 +3493,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.13"
-content-hash = "612e262fdbab8dcd670a4d1f66477c105cf5554a3b002f2e07ad33584a18d127"
+content-hash = "78f9f2c1172b7bfe3d414ebd3fc88a2ee8800c3866e6d01662ca1d3859f87d02"

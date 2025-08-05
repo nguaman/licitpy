@@ -3,8 +3,8 @@ from urllib.parse import urljoin
 from licitpy.core.models import Tender
 from licitpy.core.provider.tender import BaseTenderProvider
 from licitpy.core.services.attachments import AttachmentServices
-from licitpy.countries.cl.downloader import CLTenderDownloader
 from licitpy.countries.cl.parser import ChileTenderParser
+from licitpy.core.http import AsyncHttpClient
 
 
 class MercadoPublicoChileProvider(BaseTenderProvider):
@@ -13,11 +13,11 @@ class MercadoPublicoChileProvider(BaseTenderProvider):
 
     def __init__(
         self,
-        downloader: CLTenderDownloader | None = None,
+        downloader: AsyncHttpClient,
         parser: ChileTenderParser | None = None,
         attachment: AttachmentServices | None = None,
     ) -> None:
-        self.downloader = downloader or CLTenderDownloader()
+        self.downloader = downloader
         self.parser = parser or ChileTenderParser()
         self.attachment = attachment or AttachmentServices(downloader=self.downloader)
 
@@ -41,9 +41,16 @@ class MercadoPublicoChileProvider(BaseTenderProvider):
             url, timeout=30, allow_redirects=False
         )
 
+        if "Location" not in response.headers:
+            raise ValueError(f"No redirection found for tender code: {code}")
+
         return urljoin(self.BASE_URL, response.headers["Location"])
 
     async def get_by_code(self, code: str) -> Tender:
+        
+        if not code.strip():
+            raise ValueError("Tender code cannot be empty or whitespace.")
+
         url = await self.get_url_by_code(code)
         html = await self.downloader.get_html_by_url(url)
 

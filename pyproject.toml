@@ -55,6 +55,8 @@ types-lxml = "^2025.3.30"
 bandit = "^1.8.6"
 tox = "^4.27.0"
 types-xmltodict = "^0.14.0.20241009"
+types-aiofiles = "^24.1.0.20250801"
+types-dateparser = "^1.2.2.20250627"
 
 [build-system]
 requires = ["poetry-core"]

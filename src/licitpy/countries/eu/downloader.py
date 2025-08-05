@@ -21,7 +21,9 @@ class EUTenderDownloader:
 
         return urljoin(self.monthly_url, f"{when.year}-{when.month}")
 
-    async def download_file(self, url: str, file_name: str) -> dict:
+    async def download_file(
+        self, url: str, file_name: str
+    ) -> dict[str, str | int | float]:
         """
         Downloads a file from the given URL and saves it with the specified file name.
         """

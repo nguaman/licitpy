@@ -20,17 +20,34 @@ class EUTenderProvider(BaseTenderProvider):
         self.downloader = EUTenderDownloader(downloader)
         self.parser = parser or EUTenderParser()
 
-    async def get_by_code(self, code: str): ...
+    async def get_by_code(self, code: str) -> None:
+        raise NotImplementedError(
+            "The EU provider does not support fetching tenders by code."
+        )
 
-    async def download_monthly_bulk_file(self, when: datetime | str) -> dict:
+    async def download_monthly_bulk_file(
+        self, when: datetime | str
+    ) -> dict[str, str | int | float]:
         """
         Download the monthly bulk file for the EU tenders.
         """
 
-        if isinstance(when, str):
-            when = dateparser.parse(when)
+        if when is None:
+            raise ValueError(
+                "Invalid date format. Please provide a valid datetime object."
+            )
 
-        if not when:
+        if isinstance(when, str):
+            parsed_when = dateparser.parse(when)
+
+            if parsed_when is None:
+                raise ValueError(
+                    "Invalid date string. Please provide a valid date string."
+                )
+
+            when = parsed_when
+
+        if not isinstance(when, datetime):
             raise ValueError(
                 "Invalid date format. Please provide a valid date string or datetime object."
             )
@@ -40,7 +57,7 @@ class EUTenderProvider(BaseTenderProvider):
 
         return await self.downloader.download_file(url, file_name)
 
-    async def download_yearly_bulk_file(self, year: str) -> list[dict]:
+    async def download_yearly_bulk_file(self, year: str) -> list[dict[str, str | int | float]]:
         """
         Download the entire year bulk file for the EU tenders.
         """
@@ -52,7 +69,10 @@ class EUTenderProvider(BaseTenderProvider):
             raise ValueError("Year must be 2015 or later.")
 
         when = dateparser.parse(f"{year}-01-01")
-
+        
+        if when is None:
+            raise ValueError("Invalid year format. Please provide a valid year string.")
+        
         # Create a list of tasks for each month in the year
         tasks = [
             self.download_monthly_bulk_file(when.replace(month=month))
@@ -60,6 +80,5 @@ class EUTenderProvider(BaseTenderProvider):
         ]
 
         # Execute all download tasks concurrently
-        files = await asyncio.gather(*tasks)
+        return await asyncio.gather(*tasks)
 
-        return files
